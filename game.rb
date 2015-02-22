@@ -17,27 +17,17 @@ class Board
 	attr_reader :board
 
 	def initialize
-		@board = {[7,0] => nil, [7,1] => nil, [7,2] => nil, [7,3] => nil, [7,4] => nil, [7,5] => nil, [7,6] => nil, [7,7] => nil,
-				  [6,0] => nil, [6,1] => nil, [6,2] => nil, [6,3] => nil, [6,4] => nil, [6,5] => nil, [6,6] => nil, [6,7] => nil,
+		@board = {[7,0] => Piece.new('rook','b'), [7,1] => Piece.new('knight','b'), [7,2] => Piece.new('bishop','b'), [7,3] => Piece.new('king','b'), [7,4] => Piece.new('queen','b'), [7,5] => Piece.new('bishop','b'), [7,6] => Piece.new('knight','b'), [7,7] => Piece.new('rook','b'),
+				  [6,0] => Piece.new('pawn','b'), [6,1] => Piece.new('pawn','b'), [6,2] => Piece.new('pawn','b'), [6,3] => Piece.new('pawn','b'), [6,4] => Piece.new('pawn','b'), [6,5] => Piece.new('pawn','b'), [6,6] => Piece.new('pawn','b'), [6,7] => Piece.new('pawn','b'),
 				  [5,0] => nil, [5,1] => nil, [5,2] => nil, [5,3] => nil, [5,4] => nil, [5,5] => nil, [5,6] => nil, [5,7] => nil,
 				  [4,0] => nil, [4,1] => nil, [4,2] => nil, [4,3] => nil, [4,4] => nil, [4,5] => nil, [4,6] => nil, [4,7] => nil,
 				  [3,0] => nil, [3,1] => nil, [3,2] => nil, [3,3] => nil, [3,4] => nil, [3,5] => nil, [3,6] => nil, [3,7] => nil,
 				  [2,0] => nil, [2,1] => nil, [2,2] => nil, [2,3] => nil, [2,4] => nil, [2,5] => nil, [2,6] => nil, [2,7] => nil,
-				  [1,0] => nil, [1,1] => nil, [1,2] => nil, [1,3] => nil, [1,4] => nil, [1,5] => nil, [1,6] => nil, [1,7] => nil,
-				  [0,0] => nil, [0,1] => nil, [0,2] => nil, [0,3] => nil, [0,4] => nil, [0,5] => nil, [0,6] => nil, [0,7] => nil}
-		@pieces = [Piece.new('pawn','w', [1,0]), Piece.new('pawn','w', [1,1]), Piece.new('pawn','w', [1,2]), Piece.new('pawn','w', [1,3]), 
-				   Piece.new('pawn','w', [1,4]), Piece.new('pawn','w', [1,5]), Piece.new('pawn','w', [1,6]), Piece.new('pawn','w', [1,7]),
-				   Piece.new('rook','w', [0,0]), Piece.new('knight','w', [0,1]), Piece.new('bishop','w', [0,2]), Piece.new('queen','w', [0,3]),
-				   Piece.new('king','w', [0,4]), Piece.new('bishop','w', [0,5]), Piece.new('knight','w', [0,6]), Piece.new('rook','w', [0,7]),
-			  	   Piece.new('pawn','b', [6,0]), Piece.new('pawn','b', [6,1]), Piece.new('pawn','b', [6,2]), Piece.new('pawn','b', [6,3]), 
-				   Piece.new('pawn','b', [6,4]), Piece.new('pawn','b', [6,5]), Piece.new('pawn','b', [6,6]), Piece.new('pawn','b', [6,7]),
-				   Piece.new('rook','b', [7,0]), Piece.new('knight','b', [7,1]), Piece.new('bishop','b', [7,2]), Piece.new('king','b', [7,3]),
-				   Piece.new('queen','b', [7,4]), Piece.new('bishop','b', [7,5]), Piece.new('knight','b', [7,6]), Piece.new('rook','b', [7,7])]		
-	end
+				  [1,0] => Piece.new('pawn','w'), [1,1] => Piece.new('pawn','w'), [1,2] => Piece.new('pawn','w'), [1,3] => Piece.new('pawn','w'), [1,4] => Piece.new('pawn','w'), [1,5] => Piece.new('pawn','w'), [1,6] => Piece.new('pawn','w'), [1,7] => Piece.new('pawn','w'),
+				  [0,0] => Piece.new('rook','w'), [0,1] => Piece.new('knight','w'), [0,2] => Piece.new('bishop','w'), [0,3] => Piece.new('queen','w'), [0,4] => Piece.new('king','w'), [0,5] => Piece.new('bishop','w'), [0,6] => Piece.new('knight','w'), [0,7] => Piece.new('rook','w')}
+		end
 
 	def rotate_board
-		# Creates a temp board to store values
-		@board = @board
 		#p @board
 		@board[70] = @board[[7,0]]
 		@board[71] = @board[[7,1]]
@@ -170,16 +160,6 @@ class Board
 		p @board										
 	end
 
-	def show_board
-		p @board.values
-	end
-
-	def place_pieces
-		@pieces.each do |piece|
-			@board[piece.type.position] = piece.type
-		end
-	end
-
 	def occupied(pos)
 		if !@board[pos].nil?
 			true
@@ -217,20 +197,20 @@ end
 class Piece
 	attr_reader :type
 
-	def initialize(type, color, position)
+	def initialize(type, color)
 		case type
 		when "pawn"
-			@type = Pawn.new(color, position)
+			@type = Pawn.new(color)
 		when "rook"
-			@type = Rook.new(color, position)
+			@type = Rook.new(color)
 		when "knight"
-			@type = Knight.new(color, position)
+			@type = Knight.new(color)
 		when "bishop"
-			@type = Bishop.new(color, position)
+			@type = Bishop.new(color)
 		when "queen"
-			@type = Queen.new(color, position)
+			@type = Queen.new(color)
 		when "king"
-			@type = King.new(color, position)
+			@type = King.new(color)
 		else
 			@type = nil
 		end
@@ -243,61 +223,49 @@ class Piece
 end
 
 class Pawn
-	attr_reader :position
 
-	def initialize(color, position)
+	def initialize(color)
 		@color = color
-		@position = position
 	end
 
 end
 
 class Rook
-	attr_reader :position
 
-	def initialize(color, position)
+	def initialize(color)
 		@color = color
-		@position = position
 	end
 
 end
 
-class Knight
-	attr_reader :position	
+class Knight	
 
-	def initialize(color, position)
+	def initialize(color)
 		@color = color
-		@position = position
 	end
 
 end
 
 class Bishop
-	attr_reader :position
 
-	def initialize(color, position)
+	def initialize(color)
 		@color = color
-		@position = position
 	end
 
 end
 
 class Queen
-	attr_reader :position
 
-	def initialize(color, position)
+	def initialize(color)
 		@color = color
-		@position = position
 	end
 
 end
 
 class King
-	attr_reader :position
 
-	def initialize(color, position)
+	def initialize(color)
 		@color = color
-		@position = position
 	end
 
 end
@@ -311,8 +279,8 @@ victory = false
 #player2 = gets.chomp.to_s
 
 game = Game.new('player1', 'player2')
-game.gameboard.place_pieces
-#game.gameboard.show_board
+#game.gameboard.place_pieces
+p game.gameboard.board
 #p game.gameboard.occupied([0,0])
 #p game.gameboard.legal_pawn([1,0], [3,0])
 #game.gameboard.pawn_moves([1,0], [3,0])
