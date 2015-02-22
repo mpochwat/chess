@@ -25,15 +25,6 @@ class Board
 				  [2,0] => nil, [2,1] => nil, [2,2] => nil, [2,3] => nil, [2,4] => nil, [2,5] => nil, [2,6] => nil, [2,7] => nil,
 				  [1,0] => nil, [1,1] => nil, [1,2] => nil, [1,3] => nil, [1,4] => nil, [1,5] => nil, [1,6] => nil, [1,7] => nil,
 				  [0,0] => nil, [0,1] => nil, [0,2] => nil, [0,3] => nil, [0,4] => nil, [0,5] => nil, [0,6] => nil, [0,7] => nil}
-		#@board = [[Square.new('a8'),Square.new('b8'),Square.new('c8'),Square.new('d8'),Square.new('e8'),Square.new('f8'),Square.new('g8'),Square.new('h8')],
-		#		  [Square.new('a7'),Square.new('b7'),Square.new('c7'),Square.new('d7'),Square.new('e7'),Square.new('f7'),Square.new('g7'),Square.new('h7')],
-		#		  [Square.new('a6'),Square.new('b6'),Square.new('c6'),Square.new('d6'),Square.new('e6'),Square.new('f6'),Square.new('g6'),Square.new('h6')],
-		#		  [Square.new('a5'),Square.new('b5'),Square.new('c5'),Square.new('d5'),Square.new('e5'),Square.new('f5'),Square.new('g5'),Square.new('h5')],
-		#		  [Square.new('a4'),Square.new('b4'),Square.new('c4'),Square.new('d4'),Square.new('e4'),Square.new('f4'),Square.new('g4'),Square.new('h4')],
-		#		  [Square.new('a3'),Square.new('b3'),Square.new('c3'),Square.new('d3'),Square.new('e3'),Square.new('f3'),Square.new('g3'),Square.new('h3')],
-		#		  [Square.new('a2'),Square.new('b2'),Square.new('c2'),Square.new('d2'),Square.new('e2'),Square.new('f2'),Square.new('g2'),Square.new('h2')],
-		#		  [Square.new('a1'),Square.new('b1'),Square.new('c1'),Square.new('d1'),Square.new('e1'),Square.new('f1'),Square.new('g1'),Square.new('h1')],
-		#		]
 		@pieces = [Piece.new('pawn','w', [1,0]), Piece.new('pawn','w', [1,1]), Piece.new('pawn','w', [1,2]), Piece.new('pawn','w', [1,3]), 
 				   Piece.new('pawn','w', [1,4]), Piece.new('pawn','w', [1,5]), Piece.new('pawn','w', [1,6]), Piece.new('pawn','w', [1,7]),
 				   Piece.new('rook','w', [0,0]), Piece.new('knight','w', [0,1]), Piece.new('bishop','w', [0,2]), Piece.new('queen','w', [0,3]),
@@ -44,13 +35,140 @@ class Board
 				   Piece.new('queen','b', [7,4]), Piece.new('bishop','b', [7,5]), Piece.new('knight','b', [7,6]), Piece.new('rook','b', [7,7])]		
 	end
 
-#	def show_row(row)
-#		for i in 0..7
-#			row[i].show
-#			print " "
-#		end
-#		' '
-#	end
+	def rotate_board
+		# Creates a temp board to store values
+		@board = @board
+		#p @board
+		@board[70] = @board[[7,0]]
+		@board[71] = @board[[7,1]]
+		@board[72] = @board[[7,2]]
+		@board[73] = @board[[7,3]]
+		@board[74] = @board[[7,4]]
+		@board[75] = @board[[7,5]]
+		@board[76] = @board[[7,6]]
+		@board[77] = @board[[7,7]]
+		@board[60] = @board[[6,0]]
+		@board[61] = @board[[6,1]]
+		@board[62] = @board[[6,2]]
+		@board[63] = @board[[6,3]]
+		@board[64] = @board[[6,4]]
+		@board[65] = @board[[6,5]]
+		@board[66] = @board[[6,6]]
+		@board[67] = @board[[6,7]]	
+		@board[50] = @board[[5,0]]
+		@board[51] = @board[[5,1]]
+		@board[52] = @board[[5,2]]
+		@board[53] = @board[[5,3]]
+		@board[54] = @board[[5,4]]
+		@board[55] = @board[[5,5]]
+		@board[56] = @board[[5,6]]
+		@board[57] = @board[[5,7]]	
+		@board[40] = @board[[4,0]]
+		@board[41] = @board[[4,1]]
+		@board[42] = @board[[4,2]]
+		@board[43] = @board[[4,3]]
+		@board[44] = @board[[4,4]]
+		@board[45] = @board[[4,5]]
+		@board[46] = @board[[4,6]]
+		@board[47] = @board[[4,7]]				
+		@board[[7,0]] = @board[[0,7]]
+		@board[[7,1]] = @board[[0,6]]
+		@board[[7,2]] = @board[[0,5]]
+		@board[[7,3]] = @board[[0,4]]
+		@board[[7,4]] = @board[[0,3]]
+		@board[[7,5]] = @board[[0,2]]
+		@board[[7,6]] = @board[[0,1]]
+		@board[[7,7]] = @board[[0,0]]
+		@board[[6,0]] = @board[[1,7]]
+		@board[[6,1]] = @board[[1,6]]
+		@board[[6,2]] = @board[[1,5]]
+		@board[[6,3]] = @board[[1,4]]
+		@board[[6,4]] = @board[[1,3]]
+		@board[[6,5]] = @board[[1,2]]
+		@board[[6,6]] = @board[[1,1]]
+		@board[[6,7]] = @board[[1,0]]
+		@board[[5,0]] = @board[[2,7]]
+		@board[[5,1]] = @board[[2,6]]
+		@board[[5,2]] = @board[[2,5]]
+		@board[[5,3]] = @board[[2,4]]
+		@board[[5,4]] = @board[[2,3]]
+		@board[[5,5]] = @board[[2,2]]
+		@board[[5,6]] = @board[[2,1]]
+		@board[[5,7]] = @board[[2,0]]
+		@board[[4,0]] = @board[[3,7]]
+		@board[[4,1]] = @board[[3,6]]
+		@board[[4,2]] = @board[[3,5]]
+		@board[[4,3]] = @board[[3,4]]
+		@board[[4,4]] = @board[[3,3]]
+		@board[[4,5]] = @board[[3,2]]
+		@board[[4,6]] = @board[[3,1]]
+		@board[[4,7]] = @board[[3,0]]	
+		@board[[3,0]] = @board[47]
+		@board[[3,1]] = @board[46]
+		@board[[3,2]] = @board[45]
+		@board[[3,3]] = @board[44]
+		@board[[3,4]] = @board[43]
+		@board[[3,5]] = @board[42]
+		@board[[3,6]] = @board[41]
+		@board[[3,7]] = @board[40]	
+		@board[[2,0]] = @board[57]
+		@board[[2,1]] = @board[56]
+		@board[[2,2]] = @board[55]
+		@board[[2,3]] = @board[54]
+		@board[[2,4]] = @board[53]
+		@board[[2,5]] = @board[52]
+		@board[[2,6]] = @board[51]
+		@board[[2,7]] = @board[50]	
+		@board[[1,0]] = @board[67]
+		@board[[1,1]] = @board[66]
+		@board[[1,2]] = @board[65]
+		@board[[1,3]] = @board[64]
+		@board[[1,4]] = @board[63]
+		@board[[1,5]] = @board[62]
+		@board[[1,6]] = @board[61]
+		@board[[1,7]] = @board[60]
+		@board[[0,0]] = @board[77]
+		@board[[0,1]] = @board[76]
+		@board[[0,2]] = @board[75]
+		@board[[0,3]] = @board[74]
+		@board[[0,4]] = @board[73]
+		@board[[0,5]] = @board[72]
+		@board[[0,6]] = @board[71]
+		@board[[0,7]] = @board[70]
+		@board.delete(40)
+		@board.delete(41)
+		@board.delete(42)
+		@board.delete(43)
+		@board.delete(44)
+		@board.delete(45)
+		@board.delete(46)
+		@board.delete(47)
+		@board.delete(50)
+		@board.delete(51)
+		@board.delete(52)
+		@board.delete(53)
+		@board.delete(54)
+		@board.delete(55)
+		@board.delete(56)
+		@board.delete(57)
+		@board.delete(60)
+		@board.delete(61)
+		@board.delete(62)
+		@board.delete(63)
+		@board.delete(64)
+		@board.delete(65)
+		@board.delete(66)
+		@board.delete(67)	
+		@board.delete(70)
+		@board.delete(71)
+		@board.delete(72)
+		@board.delete(73)
+		@board.delete(74)
+		@board.delete(75)
+		@board.delete(76)
+		@board.delete(77)					
+		p @board										
+	end
 
 	def show_board
 		p @board.values
@@ -63,29 +181,38 @@ class Board
 	end
 
 	def occupied(pos)
-		if square.occupied.nil?
-			end
+		if !@board[pos].nil?
+			true
+		else
+			false
+		end
 	end	
 
+	def legal_pawn(start_arr, finish_arr)
+		if start_arr[0] == 1
+			if ( (finish_arr[0] == 2) || (finish_arr[0] == 3) ) && ( finish_arr[1] == start_arr[1] )
+				true
+			else
+				false
+			end
+		else
+			if ( finish_arr[0] == 2 ) && ( finish_arr[1] == start_arr[1] )
+				true
+			else
+				false
+			end
+		end
+	end
+
+	def pawn_moves(start_arr, finish_arr)
+		@board[start_arr] 
+		if legal_pawn(start_arr, finish_arr) && !occupied(finish_arr)
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = nil
+		end
+	end
+
 end
-
-#class Square
-#	attr_reader :position, :occupied
-
-#	def initialize(position)
-#		@position = position
-#		@occupied = nil
-#	end
-
-#	def occupied_new(piece)
-#		@occupied = piece
-#	end
-
-#	def show
-#		@occupied == nil ? (print @position) : (print @occupied)
-#	end	
-
-#end
 
 class Piece
 	attr_reader :type
@@ -121,28 +248,6 @@ class Pawn
 	def initialize(color, position)
 		@color = color
 		@position = position
-	end
-
-	def position_legal(pos)
-		if @position[1] == "2"
-			if pos[0] == @position[0] && ( pos[1].to_i == (@position[1].to_i + 1) ) || ( pos[1].to_i == (@position[1].to_i + 2) )
-				true
-			else
-				false
-			end
-		else
-			if pos[0] == @position[0] && pos[1].to_i == (@position[1].to_i + 1)
-				true
-			else
-				false
-			end
-		end
-	end
-
-	def move(pos)
-		if position_legal(pos)
-			@position = pos
-		end
 	end
 
 end
@@ -207,10 +312,16 @@ victory = false
 
 game = Game.new('player1', 'player2')
 game.gameboard.place_pieces
-game.gameboard.show_board
+#game.gameboard.show_board
+#p game.gameboard.occupied([0,0])
+#p game.gameboard.legal_pawn([1,0], [3,0])
+#game.gameboard.pawn_moves([1,0], [3,0])
+#game.gameboard.show_board
+game.gameboard.rotate_board
 
-new_pawn = Pawn.new('white', 'a2')
-new_pawn.move('a4')
-p new_pawn.position
+
+#new_pawn = Pawn.new('white', 'a2')
+#new_pawn.move('a4')
+#p new_pawn.position
 
 # Depending on white OR black's turn, may have to change the "view" of the board
