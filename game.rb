@@ -17,18 +17,57 @@ class Board
 	attr_reader :board
 
 	def initialize
-		@board = {[7,0] => Piece.new('rook','b'), [7,1] => Piece.new('knight','b'), [7,2] => Piece.new('bishop','b'), [7,3] => Piece.new('king','b'), [7,4] => Piece.new('queen','b'), [7,5] => Piece.new('bishop','b'), [7,6] => Piece.new('knight','b'), [7,7] => Piece.new('rook','b'),
-				  [6,0] => Piece.new('pawn','b'), [6,1] => Piece.new('pawn','b'), [6,2] => Piece.new('pawn','b'), [6,3] => Piece.new('pawn','b'), [6,4] => Piece.new('pawn','b'), [6,5] => Piece.new('pawn','b'), [6,6] => Piece.new('pawn','b'), [6,7] => Piece.new('pawn','b'),
-				  [5,0] => nil, [5,1] => nil, [5,2] => nil, [5,3] => nil, [5,4] => nil, [5,5] => nil, [5,6] => nil, [5,7] => nil,
-				  [4,0] => nil, [4,1] => nil, [4,2] => nil, [4,3] => nil, [4,4] => nil, [4,5] => nil, [4,6] => nil, [4,7] => nil,
-				  [3,0] => nil, [3,1] => nil, [3,2] => nil, [3,3] => nil, [3,4] => nil, [3,5] => nil, [3,6] => nil, [3,7] => nil,
-				  [2,0] => nil, [2,1] => nil, [2,2] => nil, [2,3] => nil, [2,4] => nil, [2,5] => nil, [2,6] => nil, [2,7] => nil,
-				  [1,0] => Piece.new('pawn','w'), [1,1] => Piece.new('pawn','w'), [1,2] => Piece.new('pawn','w'), [1,3] => Piece.new('pawn','w'), [1,4] => Piece.new('pawn','w'), [1,5] => Piece.new('pawn','w'), [1,6] => Piece.new('pawn','w'), [1,7] => Piece.new('pawn','w'),
-				  [0,0] => Piece.new('rook','w'), [0,1] => Piece.new('knight','w'), [0,2] => Piece.new('bishop','w'), [0,3] => Piece.new('queen','w'), [0,4] => Piece.new('king','w'), [0,5] => Piece.new('bishop','w'), [0,6] => Piece.new('knight','w'), [0,7] => Piece.new('rook','w')}
+		@board = {[7,0] => Piece.new('rook','b'), [7,1] => Piece.new('knight','b'), [7,2] => Piece.new('bishop','b'), [7,3] => Piece.new('king','b'), [7,4] => Piece.new('queen','b'), [7,5] => Piece.new('bishop','b'), [7,6] => Piece.new('knight','b'), [7,7] => Piece.new('rook','b'), [7,8] => "",
+				  [6,0] => Piece.new('pawn','b'), [6,1] => Piece.new('pawn','b'), [6,2] => Piece.new('pawn','b'), [6,3] => Piece.new('pawn','b'), [6,4] => Piece.new('pawn','b'), [6,5] => Piece.new('pawn','b'), [6,6] => Piece.new('pawn','b'), [6,7] => Piece.new('pawn','b'), [6,8] => "",
+				  [5,0] => "*", [5,1] => "*", [5,2] => "*", [5,3] => "*", [5,4] => "*", [5,5] => "*", [5,6] => "*", [5,7] => "*", [5,8] => '',
+				  [4,0] => "*", [4,1] => "*", [4,2] => "*", [4,3] => "*", [4,4] => "*", [4,5] => "*", [4,6] => "*", [4,7] => "*", [4,8] => '',
+				  [3,0] => "*", [3,1] => "*", [3,2] => "*", [3,3] => "*", [3,4] => "*", [3,5] => "*", [3,6] => "*", [3,7] => "*", [3,8] => '',
+				  [2,0] => "*", [2,1] => "*", [2,2] => "*", [2,3] => "*", [2,4] => "*", [2,5] => "*", [2,6] => "*", [2,7] => "*", [2,8] => '',
+				  [1,0] => Piece.new('pawn','w'), [1,1] => Piece.new('pawn','w'), [1,2] => Piece.new('pawn','w'), [1,3] => Piece.new('pawn','w'), [1,4] => Piece.new('pawn','w'), [1,5] => Piece.new('pawn','w'), [1,6] => Piece.new('pawn','w'), [1,7] => Piece.new('pawn','w'), [1,8] => '',
+				  [0,0] => Piece.new('rook','w'), [0,1] => Piece.new('knight','w'), [0,2] => Piece.new('bishop','w'), [0,3] => Piece.new('queen','w'), [0,4] => Piece.new('king','w'), [0,5] => Piece.new('bishop','w'), [0,6] => Piece.new('knight','w'), [0,7] => Piece.new('rook','w'), [0,8] => '',}
+	end
+
+	def show_board
+		@board.values.each do |space|
+			if !(space.class == String)
+				if (space.type.class == Pawn) && (space.type.color == 'w')
+					print "\u2659" + " "
+				elsif (space.type.class == Pawn) && (space.type.color == 'b')
+					print "\u265F" + " "	
+				elsif (space.type.class == Rook) && (space.type.color == 'w')
+					print "\u2656" + " "			
+				elsif (space.type.class == Rook) && (space.type.color == 'b')
+					print "\u265C" + " "		
+				elsif (space.type.class == Knight) && (space.type.color == 'w')
+					print "\u2658" + " "			
+				elsif (space.type.class == Knight) && (space.type.color == 'b')
+					print "\u265E" + " "	
+				elsif (space.type.class == Bishop) && (space.type.color == 'w')
+					print "\u2657" + " "			
+				elsif (space.type.class == Bishop) && (space.type.color == 'b')
+					print "\u265D" + " "	
+				elsif (space.type.class == Queen) && (space.type.color == 'w')
+					print "\u2655" + " "			
+				elsif (space.type.class == Queen) && (space.type.color == 'b')
+					print "\u265B" + " "			
+				elsif (space.type.class == King) && (space.type.color == 'w')
+					print "\u2654" + " "			
+				elsif (space.type.class == King) && (space.type.color == 'b')
+					print "\u265A" + " "																													
+				else
+					print space
+				end
+			elsif !(space == "")
+				print space + " "
+			else
+				puts space + " "
+			end
 		end
+		puts "---------------"
+		#puts "               "
+	end
 
 	def rotate_board
-		#p @board
 		@board[70] = @board[[7,0]]
 		@board[71] = @board[[7,1]]
 		@board[72] = @board[[7,2]]
@@ -157,11 +196,11 @@ class Board
 		@board.delete(75)
 		@board.delete(76)
 		@board.delete(77)					
-		p @board										
+		@board										
 	end
 
 	def occupied(pos)
-		if !@board[pos].nil?
+		if !( @board[pos].class == String )
 			true
 		else
 			false
@@ -185,11 +224,11 @@ class Board
 	end
 
 	def pawn_moves(start_arr, finish_arr)
-		@board[start_arr] 
 		if legal_pawn(start_arr, finish_arr) && !occupied(finish_arr)
 			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = nil
+			@board[start_arr] = "*"
 		end
+		show_board
 	end
 
 end
@@ -212,7 +251,7 @@ class Piece
 		when "king"
 			@type = King.new(color)
 		else
-			@type = nil
+			@type = "*"
 		end
 	end
 
@@ -223,6 +262,7 @@ class Piece
 end
 
 class Pawn
+	attr_reader :color
 
 	def initialize(color)
 		@color = color
@@ -231,6 +271,7 @@ class Pawn
 end
 
 class Rook
+	attr_reader :color
 
 	def initialize(color)
 		@color = color
@@ -239,6 +280,7 @@ class Rook
 end
 
 class Knight	
+	attr_reader :color
 
 	def initialize(color)
 		@color = color
@@ -247,6 +289,7 @@ class Knight
 end
 
 class Bishop
+	attr_reader :color
 
 	def initialize(color)
 		@color = color
@@ -255,6 +298,7 @@ class Bishop
 end
 
 class Queen
+	attr_reader :color
 
 	def initialize(color)
 		@color = color
@@ -263,6 +307,7 @@ class Queen
 end
 
 class King
+	attr_reader :color
 
 	def initialize(color)
 		@color = color
@@ -280,12 +325,17 @@ victory = false
 
 game = Game.new('player1', 'player2')
 #game.gameboard.place_pieces
-p game.gameboard.board
+game.gameboard.show_board
 #p game.gameboard.occupied([0,0])
 #p game.gameboard.legal_pawn([1,0], [3,0])
-#game.gameboard.pawn_moves([1,0], [3,0])
+game.gameboard.pawn_moves([1,0], [3,0])
 #game.gameboard.show_board
-game.gameboard.rotate_board
+#game.gameboard.show_board
+#game.gameboard.rotate_board
+#game.gameboard.pawn_moves([1,0], [3,0])
+#p game.gameboard.board
+
+#game.gameboard.show_board
 
 
 #new_pawn = Pawn.new('white', 'a2')
