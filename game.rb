@@ -213,6 +213,14 @@ class Board
 		end
 	end	
 
+	def get_input(prompt)
+		loop do
+			print prompt + ": "
+			input = gets.chomp
+			return input unless input.empty?
+		end
+	end	
+
 	def legal_pawn(start_arr, finish_arr)
 		# If pawn has not moved at all, it can take a double step straight forward.
 		if start_arr[0] == 1
@@ -240,14 +248,6 @@ class Board
 		end
 	end
 
-	def get_input(prompt)
-		loop do
-			print prompt + ": "
-			input = gets.chomp
-			return input unless input.empty?
-		end
-	end
-
 	def pawn_moves(start_arr, finish_arr)
 		color = @color.pop
 		# Checks if pawn overtakes another pieces
@@ -263,6 +263,7 @@ class Board
 				ans = get_input("You can promote your pawn. Please select what piece you would like to promote it to: Queen, Rook, Knight, Bishop, or Pawn").downcase
 				@board[finish_arr] = Piece.new(ans, color)
 				@board[start_arr] = "*"
+			# All other cases
 			else
 				@board[finish_arr] = @board[start_arr]
 				@board[start_arr] = "*"
@@ -363,40 +364,13 @@ end
 
 victory = false
 
-#Undo this later on
+# Undo this later on
 #puts "Enter name of player 1:"
 #player1 = gets.chomp.to_s
 #puts "Enter name of player 2:"
 #player2 = gets.chomp.to_s
 
 game = Game.new('player1', 'player2')
-#game.gameboard.place_pieces
 game.gameboard.show_board
-#p game.gameboard.occupied([0,0])
-#p game.gameboard.legal_pawn([1,0], [3,0])
 game.gameboard.pawn_moves([1,0], [3,0])
 game.gameboard.pawn_moves([1,6], [3,6])
-game.gameboard.pawn_moves([3,0], [4,0])
-game.gameboard.pawn_moves([1,6], [3,6])
-game.gameboard.pawn_moves([4,0], [5,0])
-game.gameboard.pawn_moves([1,6], [3,6])
-game.gameboard.pawn_moves([5,0], [6,0])
-game.gameboard.pawn_moves([1,6], [3,6])
-game.gameboard.pawn_moves([6,0], [7,0])
-#game.gameboard.pawn_moves([3,0], [4,0])
-#game.gameboard.pawn_moves([3,0], [4,0])
-#game.gameboard.pawn_moves([4,0], [5,0])
-#game.gameboard.show_board
-#game.gameboard.show_board
-#game.gameboard.rotate_board
-#game.gameboard.pawn_moves([1,0], [3,0])
-#p game.gameboard.board
-
-#game.gameboard.show_board
-
-
-#new_pawn = Pawn.new('white', 'a2')
-#new_pawn.move('a4')
-#p new_pawn.position
-
-# Depending on white OR black's turn, may have to change the "view" of the board
