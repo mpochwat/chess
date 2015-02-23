@@ -17,6 +17,7 @@ class Board
 	attr_reader :board
 
 	def initialize
+		# Generates initial chess board.
 		@board = {[7,0] => Piece.new('rook','b'), [7,1] => Piece.new('knight','b'), [7,2] => Piece.new('bishop','b'), [7,3] => Piece.new('king','b'), [7,4] => Piece.new('queen','b'), [7,5] => Piece.new('bishop','b'), [7,6] => Piece.new('knight','b'), [7,7] => Piece.new('rook','b'), [7,8] => "",
 				  [6,0] => Piece.new('pawn','b'), [6,1] => Piece.new('pawn','b'), [6,2] => Piece.new('pawn','b'), [6,3] => Piece.new('pawn','b'), [6,4] => Piece.new('pawn','b'), [6,5] => Piece.new('pawn','b'), [6,6] => Piece.new('pawn','b'), [6,7] => Piece.new('pawn','b'), [6,8] => "",
 				  [5,0] => "*", [5,1] => "*", [5,2] => "*", [5,3] => "*", [5,4] => "*", [5,5] => "*", [5,6] => "*", [5,7] => "*", [5,8] => '',
@@ -25,9 +26,12 @@ class Board
 				  [2,0] => "*", [2,1] => "*", [2,2] => "*", [2,3] => "*", [2,4] => "*", [2,5] => "*", [2,6] => "*", [2,7] => "*", [2,8] => '',
 				  [1,0] => Piece.new('pawn','w'), [1,1] => Piece.new('pawn','w'), [1,2] => Piece.new('pawn','w'), [1,3] => Piece.new('pawn','w'), [1,4] => Piece.new('pawn','w'), [1,5] => Piece.new('pawn','w'), [1,6] => Piece.new('pawn','w'), [1,7] => Piece.new('pawn','w'), [1,8] => '',
 				  [0,0] => Piece.new('rook','w'), [0,1] => Piece.new('knight','w'), [0,2] => Piece.new('bishop','w'), [0,3] => Piece.new('queen','w'), [0,4] => Piece.new('king','w'), [0,5] => Piece.new('bishop','w'), [0,6] => Piece.new('knight','w'), [0,7] => Piece.new('rook','w'), [0,8] => '',}
+		# 50 items in this list. Used to apply 50 moves rule (draw after 50 moves).
 		@player = [1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]
+		@color = ['b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w']
 	end
 
+	# Displays the current board
 	def show_board
 		@board.values.each do |space|
 			if !(space.class == String)
@@ -65,9 +69,9 @@ class Board
 			end
 		end
 		puts "---------------"
-		#puts "               "
 	end
 
+	# Rotates the board 180 degrees. Occurs when players switch turns.
 	def rotate_board
 		@board[70] = @board[[7,0]]
 		@board[71] = @board[[7,1]]
@@ -200,6 +204,7 @@ class Board
 		@board										
 	end
 
+	# Determines if square is occupied by another piece.
 	def occupied(pos)
 		if !( @board[pos] == "*" )
 			true
@@ -209,6 +214,7 @@ class Board
 	end	
 
 	def legal_pawn(start_arr, finish_arr)
+		# If pawn has not moved at all, it can take a double step straight forward.
 		if start_arr[0] == 1
 			if ( (finish_arr[0] == 2) || (finish_arr[0] == 3) ) && ( finish_arr[1] == start_arr[1] )
 				true
@@ -224,7 +230,7 @@ class Board
 		end
 	end
 
-	def overtake(start_arr, finish_arr)
+	def overtake_pawn(start_arr, finish_arr)
 		if ( finish_arr[0] == (start_arr[0] + 1) ) && (( finish_arr[1] == start_arr[1] + 1 ) || ( finish_arr[1] == start_arr[1] - 1 ))
 			if occupied(finish_arr)
 				true
@@ -234,16 +240,34 @@ class Board
 		end
 	end
 
+	def get_input(prompt)
+		loop do
+			print prompt + ": "
+			input = gets.chomp
+			return input unless input.empty?
+		end
+	end
+
 	def pawn_moves(start_arr, finish_arr)
-		if overtake(start_arr, finish_arr)
+		color = @color.pop
+		# Checks if pawn overtakes another pieces
+		if overtake_pawn(start_arr, finish_arr)
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
 			puts "Pawn at #{start_arr} moves to #{finish_arr}."
 			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+		# Checks if pawn can legally perform the instructed move.
 		elsif legal_pawn(start_arr, finish_arr) && !occupied(finish_arr)
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
-			puts "Pawn at #{start_arr} moves to #{finish_arr}."
+			# Case where pawn reaches other side of board. Can be promoted to a new piece.
+			if finish_arr[0] == 7
+				ans = get_input("You can promote your pawn. Please select what piece you would like to promote it to: Queen, Rook, Knight, Bishop, or Pawn").downcase
+				@board[finish_arr] = Piece.new(ans, color)
+				@board[start_arr] = "*"
+			else
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+				puts "Pawn at #{start_arr} moves to #{finish_arr}."
+			end
 		end
 		puts "---------------"
 		show_board
@@ -352,7 +376,13 @@ game.gameboard.show_board
 #p game.gameboard.legal_pawn([1,0], [3,0])
 game.gameboard.pawn_moves([1,0], [3,0])
 game.gameboard.pawn_moves([1,6], [3,6])
-game.gameboard.pawn_moves([3,0], [4,1])
+game.gameboard.pawn_moves([3,0], [4,0])
+game.gameboard.pawn_moves([1,6], [3,6])
+game.gameboard.pawn_moves([4,0], [5,0])
+game.gameboard.pawn_moves([1,6], [3,6])
+game.gameboard.pawn_moves([5,0], [6,0])
+game.gameboard.pawn_moves([1,6], [3,6])
+game.gameboard.pawn_moves([6,0], [7,0])
 #game.gameboard.pawn_moves([3,0], [4,0])
 #game.gameboard.pawn_moves([3,0], [4,0])
 #game.gameboard.pawn_moves([4,0], [5,0])
