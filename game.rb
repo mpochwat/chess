@@ -25,6 +25,7 @@ class Board
 				  [2,0] => "*", [2,1] => "*", [2,2] => "*", [2,3] => "*", [2,4] => "*", [2,5] => "*", [2,6] => "*", [2,7] => "*", [2,8] => '',
 				  [1,0] => Piece.new('pawn','w'), [1,1] => Piece.new('pawn','w'), [1,2] => Piece.new('pawn','w'), [1,3] => Piece.new('pawn','w'), [1,4] => Piece.new('pawn','w'), [1,5] => Piece.new('pawn','w'), [1,6] => Piece.new('pawn','w'), [1,7] => Piece.new('pawn','w'), [1,8] => '',
 				  [0,0] => Piece.new('rook','w'), [0,1] => Piece.new('knight','w'), [0,2] => Piece.new('bishop','w'), [0,3] => Piece.new('queen','w'), [0,4] => Piece.new('king','w'), [0,5] => Piece.new('bishop','w'), [0,6] => Piece.new('knight','w'), [0,7] => Piece.new('rook','w'), [0,8] => '',}
+		@player = [1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]
 	end
 
 	def show_board
@@ -200,7 +201,7 @@ class Board
 	end
 
 	def occupied(pos)
-		if !( @board[pos].class == String )
+		if !( @board[pos] == "*" )
 			true
 		else
 			false
@@ -215,7 +216,7 @@ class Board
 				false
 			end
 		else
-			if ( finish_arr[0] == 2 ) && ( finish_arr[1] == start_arr[1] )
+			if ( finish_arr[0] == (start_arr[0] + 1) ) && ( finish_arr[1] == start_arr[1] )
 				true
 			else
 				false
@@ -223,11 +224,32 @@ class Board
 		end
 	end
 
+	def overtake(start_arr, finish_arr)
+		if ( finish_arr[0] == (start_arr[0] + 1) ) && (( finish_arr[1] == start_arr[1] + 1 ) || ( finish_arr[1] == start_arr[1] - 1 ))
+			if occupied(finish_arr)
+				true
+			end
+		else
+			false
+		end
+	end
+
 	def pawn_moves(start_arr, finish_arr)
-		if legal_pawn(start_arr, finish_arr) && !occupied(finish_arr)
+		if overtake(start_arr, finish_arr)
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
+			puts "Pawn at #{start_arr} moves to #{finish_arr}."
+			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+		elsif legal_pawn(start_arr, finish_arr) && !occupied(finish_arr)
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+			puts "Pawn at #{start_arr} moves to #{finish_arr}."
 		end
+		puts "---------------"
+		show_board
+		puts "Switching sides... Player #{@player.pop}'s turn."
+		rotate_board
+		puts "---------------"
 		show_board
 	end
 
@@ -329,6 +351,11 @@ game.gameboard.show_board
 #p game.gameboard.occupied([0,0])
 #p game.gameboard.legal_pawn([1,0], [3,0])
 game.gameboard.pawn_moves([1,0], [3,0])
+game.gameboard.pawn_moves([1,6], [3,6])
+game.gameboard.pawn_moves([3,0], [4,1])
+#game.gameboard.pawn_moves([3,0], [4,0])
+#game.gameboard.pawn_moves([3,0], [4,0])
+#game.gameboard.pawn_moves([4,0], [5,0])
 #game.gameboard.show_board
 #game.gameboard.show_board
 #game.gameboard.rotate_board
