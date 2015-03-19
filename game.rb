@@ -468,6 +468,125 @@ class Board
 	end
 
 
+# This section contains code related to the knight's moves.
+
+	def possible_moves(start_arr)
+		x = start_arr[0]
+		y = start_arr[1]
+		candidates = []
+		candidates << [x+1,y+2]
+		candidates << [x+1,y-2]
+		candidates << [x-1,y+2]
+		candidates << [x-1,y-2]
+		candidates << [x+2,y+1]
+		candidates << [x+2,y-1]
+		candidates << [x-2,y+1]
+		candidates << [x-2,y+1]
+		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
+	end
+
+	def legal_knight(start_arr, finish_arr)
+		can_move = possible_moves(start_arr)
+		p can_move.include? finish_arr
+	end
+
+	def overtake_knight(start_arr, finish_arr)
+		can_do = false
+		# If piece not empty
+		if !(@board[finish_arr] == "*")
+			p @board[finish_arr]
+			# If pieces not same color
+			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
+				if occupied(finish_arr)
+					can_do = true
+				end
+			end
+		end
+		can_do
+	end	
+
+	def knight_moves(start_arr, finish_arr)
+		color = @color.pop
+		# Checks if rook overtakes another pieces
+		if overtake_knight(start_arr, finish_arr)
+			puts "Knight at #{start_arr} moves to #{finish_arr}."
+			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+		# Checks if rook can legally perform the instructed move.
+		elsif legal_knight(start_arr, finish_arr) && !occupied(finish_arr)
+			puts "Knight at #{start_arr} moves to #{finish_arr}."
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+		end
+		puts "---------------"
+		show_board
+		puts "Switching sides... Player #{@player.pop}'s turn."
+		rotate_board
+		puts "---------------"
+		show_board
+	end
+
+
+# This section contains code related to the queen's moves.
+
+	def possible_moves(start_arr)
+		x = start_arr[0]
+		y = start_arr[1]
+		candidates = []
+		candidates << [x+1,y+2]
+		candidates << [x+1,y-2]
+		candidates << [x-1,y+2]
+		candidates << [x-1,y-2]
+		candidates << [x+2,y+1]
+		candidates << [x+2,y-1]
+		candidates << [x-2,y+1]
+		candidates << [x-2,y+1]
+		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
+	end
+
+	def legal_knight(start_arr, finish_arr)
+		can_move = possible_moves(start_arr)
+		p can_move.include? finish_arr
+	end
+
+	def overtake_knight(start_arr, finish_arr)
+		can_do = false
+		# If piece not empty
+		if !(@board[finish_arr] == "*")
+			p @board[finish_arr]
+			# If pieces not same color
+			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
+				if occupied(finish_arr)
+					can_do = true
+				end
+			end
+		end
+		can_do
+	end	
+
+	def knight_moves(start_arr, finish_arr)
+		color = @color.pop
+		# Checks if rook overtakes another pieces
+		if overtake_knight(start_arr, finish_arr)
+			puts "Knight at #{start_arr} moves to #{finish_arr}."
+			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+		# Checks if rook can legally perform the instructed move.
+		elsif legal_knight(start_arr, finish_arr) && !occupied(finish_arr)
+			puts "Knight at #{start_arr} moves to #{finish_arr}."
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+		end
+		puts "---------------"
+		show_board
+		puts "Switching sides... Player #{@player.pop}'s turn."
+		rotate_board
+		puts "---------------"
+		show_board
+	end	
+
 end
 
 class Piece
@@ -574,3 +693,6 @@ game.gameboard.pawn_moves([1,3], [3,3])
 game.gameboard.bishop_moves([3,5], [4,4])
 game.gameboard.pawn_moves([7,1], [7,2])
 game.gameboard.bishop_moves([4,4], [6,2])
+game.gameboard.knight_moves([0,1], [2,2])
+game.gameboard.knight_moves([0,1], [2,2])
+game.gameboard.knight_moves([2,2], [4,1])
