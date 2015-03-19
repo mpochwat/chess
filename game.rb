@@ -506,13 +506,13 @@ class Board
 
 	def knight_moves(start_arr, finish_arr)
 		color = @color.pop
-		# Checks if rook overtakes another pieces
+		# Checks if knight overtakes another pieces
 		if overtake_knight(start_arr, finish_arr)
 			puts "Knight at #{start_arr} moves to #{finish_arr}."
 			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
-		# Checks if rook can legally perform the instructed move.
+		# Checks if knight can legally perform the instructed move.
 		elsif legal_knight(start_arr, finish_arr) && !occupied(finish_arr)
 			puts "Knight at #{start_arr} moves to #{finish_arr}."
 			@board[finish_arr] = @board[start_arr]
@@ -590,7 +590,6 @@ class Board
 		candidates << [x+6,y-6]	
 		candidates << [x+7,y-7]
 		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
-		children
 	end
 
 	def path_queen_check(start_arr, finish_arr)
@@ -687,15 +686,75 @@ class Board
 
 	def queen_moves(start_arr, finish_arr)
 		color = @color.pop
-		# Checks if rook overtakes another pieces
+		# Checks if queen overtakes another pieces
 		if overtake_queen(start_arr, finish_arr) && path_queen_check(start_arr, finish_arr) && legal_queen(start_arr, finish_arr)
 			puts "Queen at #{start_arr} moves to #{finish_arr}."
 			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
-		# Checks if rook can legally perform the instructed move.
+		# Checks if queen can legally perform the instructed move.
 		elsif path_queen_check(start_arr, finish_arr) && legal_queen(start_arr, finish_arr) && !occupied(finish_arr)
 			puts "Queen at #{start_arr} moves to #{finish_arr}."
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+		end
+		puts "---------------"
+		show_board
+		puts "Switching sides... Player #{@player.pop}'s turn."
+		rotate_board
+		puts "---------------"
+		show_board
+	end	
+
+
+# This section contains code related to the queen's moves.
+
+	def possible_king_moves(start_arr)
+		x = start_arr[0]
+		y = start_arr[1]
+		candidates = []
+		candidates << [x+1,y]
+		candidates << [x-1,y]		
+		candidates << [x,y+1]				
+		candidates << [x,y-1]																
+		candidates << [x+1,y+1]
+		candidates << [x-1,y-1]	
+		candidates << [x-1,y+1]				
+		candidates << [x+1,y-1]				
+		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
+	end
+
+	def legal_king(start_arr, finish_arr)
+		can_move = possible_king_moves(start_arr)
+		can_move.include? finish_arr
+	end
+
+	def overtake_king(start_arr, finish_arr)
+		can_do = false
+		# If piece not empty
+		if !(@board[finish_arr] == "*")
+			@board[finish_arr]
+			# If pieces not same color
+			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
+				if occupied(finish_arr)
+					can_do = true
+				end
+			end
+		end
+		can_do
+	end	
+
+	def king_moves(start_arr, finish_arr)
+		color = @color.pop
+		# Checks if king overtakes another pieces
+		if overtake_king(start_arr, finish_arr) && legal_king(start_arr, finish_arr)
+			puts "King at #{start_arr} moves to #{finish_arr}."
+			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+		# Checks if king can legally perform the instructed move.
+		elsif legal_king(start_arr, finish_arr) && !occupied(finish_arr)
+			puts "King at #{start_arr} moves to #{finish_arr}."
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
 		end
@@ -820,3 +879,6 @@ game.gameboard.queen_moves([0,3], [2,3])
 game.gameboard.queen_moves([0,3], [6,3])
 game.gameboard.queen_moves([2,3], [2,6])
 game.gameboard.queen_moves([6,3], [6,5])
+game.gameboard.king_moves([0,4], [0,3])
+game.gameboard.king_moves([0,4], [0,3])
+game.gameboard.king_moves([0,3], [1,3])
