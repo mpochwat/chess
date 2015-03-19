@@ -221,6 +221,8 @@ class Board
 		end
 	end	
 
+# This section contains code related to the pawn's moves.
+
 	def legal_pawn(start_arr, finish_arr)
 		# If pawn has not moved at all, it can take a double step straight forward.
 		if start_arr[0] == 1
@@ -252,10 +254,10 @@ class Board
 		color = @color.pop
 		# Checks if pawn overtakes another pieces
 		if overtake_pawn(start_arr, finish_arr)
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
 			puts "Pawn at #{start_arr} moves to #{finish_arr}."
 			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
 		# Checks if pawn can legally perform the instructed move.
 		elsif legal_pawn(start_arr, finish_arr) && !occupied(finish_arr)
 			# Case where pawn reaches other side of board. Can be promoted to a new piece.
@@ -265,9 +267,9 @@ class Board
 				@board[start_arr] = "*"
 			# All other cases
 			else
+				puts "Pawn at #{start_arr} moves to #{finish_arr}."
 				@board[finish_arr] = @board[start_arr]
 				@board[start_arr] = "*"
-				puts "Pawn at #{start_arr} moves to #{finish_arr}."
 			end
 		end
 		puts "---------------"
@@ -277,6 +279,194 @@ class Board
 		puts "---------------"
 		show_board
 	end
+
+# This section contains code related to the rook's moves.
+
+	def legal_rook(start_arr, finish_arr)
+		can_move = true
+		# Rook moving horizontally
+		if finish_arr[0] == start_arr[0]
+			# Checks if any squares between start and finish are occupied. If so, cannot move to finish.
+			for i in (start_arr[1]+1)..finish_arr[1]
+				if occupied([start_arr[0],i])
+					can_move = false
+				end
+			end
+		# Rook moving vertically
+		elsif finish_arr[1] == start_arr[1]
+			# Checks if any squares between start and finish are occupied. If so, cannot move to finish.
+			for i in (start_arr[0]+1)..finish_arr[0]
+				if occupied([i,start_arr[1]])
+					can_move = false
+				end
+			end
+		else
+			true
+		end
+		can_move
+	end
+
+	def overtake_rook(start_arr, finish_arr)
+		if ( finish_arr[0] == (start_arr[0] + 1) ) && (( finish_arr[1] == start_arr[1] + 1 ) || ( finish_arr[1] == start_arr[1] - 1 ))
+			if occupied(finish_arr)
+				true
+			end
+		else
+			false
+		end
+	end
+
+	def rook_moves(start_arr, finish_arr)
+		color = @color.pop
+		# Checks if rook overtakes another pieces
+		if overtake_rook(start_arr, finish_arr)
+			puts "Rook at #{start_arr} moves to #{finish_arr}."
+			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+		# Checks if rook can legally perform the instructed move.
+		elsif legal_rook(start_arr, finish_arr) && !occupied(finish_arr)
+			puts "Rook at #{start_arr} moves to #{finish_arr}."
+			@board[finish_arr] = @board[start_arr]
+			@board[start_arr] = "*"
+		end
+		puts "---------------"
+		show_board
+		puts "Switching sides... Player #{@player.pop}'s turn."
+		rotate_board
+		puts "---------------"
+		show_board
+	end
+
+# This section contains code related to the bishops's moves.
+
+	def legal_bishop(start_arr, finish_arr)
+		diagonal = true
+		can_move = true
+		curr_arr = start_arr
+		# Bishop moving up & right
+		if finish_arr[0] > start_arr[0] && finish_arr[1] > start_arr[1]
+			# Checks if any squares between start and finish are occupied. If so, cannot move to finish.
+			# e.g. (0,2) - > (1,3). (4,6) -> (5,7)
+			while can_move && !(curr_arr == finish_arr)
+				if occupied([curr_arr[0] + 1,curr_arr[1] + 1]) || curr_arr[0] > 7 || curr_arr[1] > 7
+					can_move = false
+				else
+					curr_arr = [curr_arr[0] + 1, curr_arr[1] + 1]
+				end
+			end
+		# Bishop moving up & left
+		elsif finish_arr[0] > start_arr[0] && finish_arr[1] < start_arr[1]
+			# e.g. (0,2) - > (1,1). (0,2) -> (2,0)
+			while can_move && !(curr_arr == finish_arr)
+				#p curr_arr
+				if occupied([curr_arr[0] + 1,curr_arr[1] - 1]) ||curr_arr[0] > 7 || curr_arr[1] < 1
+					can_move = false
+				else
+					curr_arr = [curr_arr[0] + 1, curr_arr[1] - 1]
+				end
+			end	
+		# Bishop moving down & right
+		elsif finish_arr[0] < start_arr[0] && finish_arr[1] > start_arr[1]
+			# e.g. (3,5) - > (2,6)
+			while can_move && !(curr_arr == finish_arr)
+				#p curr_arr
+				if occupied([curr_arr[0] - 1,curr_arr[1] + 1]) || curr_arr[0] < 1 || curr_arr[1] > 7
+					can_move = false
+				else
+					curr_arr = [curr_arr[0] - 1, curr_arr[1] + 1]
+				end
+			end
+		# Bishop moving down & left
+		elsif finish_arr[0] < start_arr[0] && finish_arr[1] < start_arr[1]
+			# e.g. (3,5) - > (2,4)
+			while can_move && !(curr_arr == finish_arr)
+				#p curr_arr
+				if occupied([curr_arr[0] - 1,curr_arr[1] - 1]) || curr_arr[0] < 1 || curr_arr[1] < 1
+					can_move = false
+				else
+					curr_arr = [curr_arr[0] - 1, curr_arr[1] - 1]
+				end
+			end			
+		end			
+		p can_move
+	end
+
+	def overtake_bishop(start_arr, finish_arr)
+		# If piece not empty
+		if !(@board[finish_arr] == "*")
+			# If pieces not same color
+			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
+				if occupied(finish_arr)
+					true
+				end
+			end
+		else
+			false
+		end
+	end				
+
+	# Clean this up to make more efficeint
+	def bishop_moves(start_arr, finish_arr)
+		color = @color.pop
+		# Checks if rook overtakes another pieces
+		if finish_arr[0] > start_arr[0] && finish_arr[1] > start_arr[1]
+			if overtake_bishop(start_arr, finish_arr) && legal_bishop(start_arr, [finish_arr[0] - 1, finish_arr[1] - 1])
+				puts "Bishop at #{start_arr} moves to #{finish_arr}."
+				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+			# Checks if rook can legally perform the instructed move.
+			elsif legal_bishop(start_arr, finish_arr) && !occupied(finish_arr)
+				puts "Bishop at #{start_arr} moves to #{finish_arr}."			
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+			end
+		elsif finish_arr[0] > start_arr[0] && finish_arr[1] < start_arr[1]
+			if overtake_bishop(start_arr, finish_arr) && legal_bishop(start_arr, [finish_arr[0] - 1, finish_arr[1] + 1])
+				puts "Bishop at #{start_arr} moves to #{finish_arr}."
+				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+			# Checks if rook can legally perform the instructed move.
+			elsif legal_bishop(start_arr, finish_arr) && !occupied(finish_arr)
+				puts "Bishop at #{start_arr} moves to #{finish_arr}."			
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+			end
+		elsif finish_arr[0] < start_arr[0] && finish_arr[1] > start_arr[1]
+			if overtake_bishop(start_arr, finish_arr) && legal_bishop(start_arr, [finish_arr[0] + 1, finish_arr[1] - 1])
+				puts "Bishop at #{start_arr} moves to #{finish_arr}."
+				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+			# Checks if rook can legally perform the instructed move.
+			elsif legal_bishop(start_arr, finish_arr) && !occupied(finish_arr)
+				puts "Bishop at #{start_arr} moves to #{finish_arr}."			
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+			end				
+		else
+			if overtake_bishop(start_arr, finish_arr) && legal_bishop(start_arr, [finish_arr[0] + 1, finish_arr[1] + 1])
+				puts "Bishop at #{start_arr} moves to #{finish_arr}."
+				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+			# Checks if rook can legally perform the instructed move.
+			elsif legal_bishop(start_arr, finish_arr) && !occupied(finish_arr)
+				puts "Bishop at #{start_arr} moves to #{finish_arr}."			
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+			end			
+		end
+		puts "---------------"
+		show_board
+		puts "Switching sides... Player #{@player.pop}'s turn."
+		rotate_board
+		puts "---------------"
+		show_board
+	end
+
 
 end
 
@@ -374,3 +564,13 @@ game = Game.new('player1', 'player2')
 game.gameboard.show_board
 game.gameboard.pawn_moves([1,0], [3,0])
 game.gameboard.pawn_moves([1,6], [3,6])
+game.gameboard.rook_moves([0,0], [2,0])
+game.gameboard.pawn_moves([1,0], [3,0])
+game.gameboard.rook_moves([2,0], [2,4])
+game.gameboard.pawn_moves([1,3], [3,3])
+game.gameboard.rook_moves([2,4], [3,4])
+game.gameboard.bishop_moves([0,2], [3,5])
+game.gameboard.pawn_moves([1,3], [3,3])
+game.gameboard.bishop_moves([3,5], [4,4])
+game.gameboard.pawn_moves([7,1], [7,2])
+game.gameboard.bishop_moves([4,4], [6,2])
