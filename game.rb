@@ -221,6 +221,63 @@ class Board
 		end
 	end	
 
+	# Determine the king piece's position
+	def king_position
+		current_color = @color.pop
+		@color.pop
+		king_position = nil
+		for i in 0..7
+			for j in 0..7
+				if !( @board[[i,j]] == "*" ) && ( @board[[i,j]].type.color == current_color )
+					if @board[[i,j]].type.class == King
+						king_position = [i,j]
+					end
+				end
+			end
+		end
+		king_position
+	end
+
+	# Determines all possible moves of opponent pieces on the board. Used in check? function to determine if "check" occurs.
+	def all_possible_moves(pieces)
+		possible_moves = []
+		pieces.each do |piece|
+			if piece[0].type.class == Pawn
+			#	possible_moves << possible_pawn_moves(piece[1])
+			#elsif piece[0].type.class == Rook
+			#	possible_moves << possible_rook_moves(piece[1])
+			#elsif piece[0].type.class == Bishop
+			#	possible_moves << possible_bishop_moves(piece[1])				
+			elsif piece[0].type.class == Knight
+				possible_moves << possible_knight_moves(piece[1])		
+			elsif piece[0].type.class == Queen
+				possible_moves << possible_queen_moves(piece[1])		
+			else 
+				possible_moves << possible_king_moves(piece[1])
+			end						
+		end
+		possible_moves =possible_moves.flatten(1).uniq
+		p possible_moves.sort
+	end
+
+	def check?
+		@color.pop		
+		opponent_color = @color.pop
+		# Generates list of all opponent pieces and their positions.	
+		opponent_pieces = []
+		for i in 0..7
+			for j in 0..7
+				if !( @board[[i,j]] == "*" ) && ( @board[[i,j]].type.color == opponent_color )
+					opponent_pieces << [ @board[[i,j]], [i,j] ]
+				end
+			end
+		end	
+		if all_possible_moves(opponent_pieces).include? king_position
+			p "Check! Player must move King this turn."
+		end
+	end
+
+
 # This section contains code related to the pawn's moves.
 
 	def legal_pawn(start_arr, finish_arr)
@@ -882,3 +939,5 @@ game.gameboard.queen_moves([6,3], [6,5])
 game.gameboard.king_moves([0,4], [0,3])
 game.gameboard.king_moves([0,4], [0,3])
 game.gameboard.king_moves([0,3], [1,3])
+game.gameboard.king_moves([0,3], [1,3])
+game.gameboard.check?
