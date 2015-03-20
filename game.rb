@@ -259,7 +259,7 @@ class Board
 		possible_moves =possible_moves.flatten(1).uniq.sort
 	end
 
-	def check?
+	def opponent_pieces
 		@color.pop		
 		opponent_color = @color.pop
 		# Generates list of all opponent pieces and their positions.	
@@ -271,10 +271,20 @@ class Board
 				end
 			end
 		end	
+		opponent_pieces
+	end
+
+	def check?
 		# Determines if king is currently in "check"
 		if all_possible_moves(opponent_pieces).include? king_position
 			p "Check! Player must move King this turn."
 		end
+	end
+
+	def checkmate?
+		king_moves = possible_king_moves(king_position)
+		opponent_moves = all_possible_moves(opponent_pieces)
+		(opponent_moves-king_moves).empty?
 	end
 
 
@@ -886,7 +896,6 @@ victory = false
 
 game = Game.new('player1', 'player2')
 game.gameboard.show_board
-game.gameboard.possible_pawn_moves([1,0])
 game.gameboard.pawn_moves([1,0], [3,0])
 game.gameboard.pawn_moves([1,6], [3,6])
 game.gameboard.pawn_moves([3,0], [4,1])
@@ -895,7 +904,7 @@ game.gameboard.rook_moves([0,0], [4,0])
 game.gameboard.pawn_moves([1,4], [2,4])
 game.gameboard.pawn_moves([1,4], [2,4])
 game.gameboard.rook_moves([0,7], [2,7])
-game.gameboard.pawn_moves([1,5], [2,5])
+game.gameboard.pawn_moves([1,1], [2,1])
 game.gameboard.bishop_moves([0,5], [5,0])
 game.gameboard.knight_moves([0,1], [2,2])
 game.gameboard.queen_moves([0,3], [3,6])
@@ -903,3 +912,13 @@ game.gameboard.king_moves([0,4], [1,4])
 game.gameboard.check?
 game.gameboard.king_moves([0,4], [1,5])
 game.gameboard.check?
+p game.gameboard.checkmate?
+game.gameboard.queen_moves([0,3], [0,4])
+game.gameboard.check?
+p game.gameboard.checkmate?
+game.gameboard.bishop_moves([5,0], [4,1])
+game.gameboard.check?
+p game.gameboard.checkmate?
+game.gameboard.knight_moves([2,2], [0,3])
+game.gameboard.check?
+p game.gameboard.checkmate?
