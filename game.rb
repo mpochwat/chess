@@ -3,12 +3,35 @@ class Game
 
 	def initialize(player1, player2)
 		@gameboard = Board.new
-		@white = player1
-		@black = player2
+		@player1 = player1
+		@players = player2
 	end
 
 	def play
+		gameboard.show_board
+		puts "#{@player1} select a piece (by location) that you want to move:"
+		start_arr = gets.chomp[1..3]
+		puts "Where do you want to move it? (by location)"
+		finish_arr = gets.chomp[1..3]
+		start_arr = start_arr.split(",").map { |s| s.to_i }
+		finish_arr = finish_arr.split(",").map { |s| s.to_i }
 
+		piece_type = gameboard.board[start_arr].type.class.to_s
+		# Calls appropriate function to move the piece
+		case piece_type
+		when "Pawn"
+			gameboard.pawn_moves(start_arr, finish_arr)
+		when "Rook"
+			gameboard.rook_moves(start_arr, finish_arr)
+		when "Bishop"
+			gameboard.bishop_moves(start_arr, finish_arr)
+		when "Knight"
+			gameboard.knight_moves(start_arr, finish_arr)
+		when "Queen"
+			gameboard.queen_moves(start_arr, finish_arr)
+		else
+			gameboard.king_moves(start_arr, finish_arr)			
+		end		
 	end
 
 end
@@ -286,7 +309,6 @@ class Board
 		opponent_moves = all_possible_moves(opponent_pieces)
 		(opponent_moves-king_moves).empty?
 	end
-
 
 # This section contains code related to the pawn's moves.
 
@@ -888,37 +910,14 @@ end
 
 victory = false
 
-# Undo this later on
-#puts "Enter name of player 1:"
-#player1 = gets.chomp.to_s
-#puts "Enter name of player 2:"
-#player2 = gets.chomp.to_s
+puts "Enter name of player 1:"
+player1 = gets.chomp.to_s
+puts "Enter name of player 2:"
+player2 = gets.chomp.to_s
 
-game = Game.new('player1', 'player2')
-game.gameboard.show_board
-game.gameboard.pawn_moves([1,0], [3,0])
-game.gameboard.pawn_moves([1,6], [3,6])
-game.gameboard.pawn_moves([3,0], [4,1])
-game.gameboard.pawn_moves([1,7], [3,7])
-game.gameboard.rook_moves([0,0], [4,0])
-game.gameboard.pawn_moves([1,4], [2,4])
-game.gameboard.pawn_moves([1,4], [2,4])
-game.gameboard.rook_moves([0,7], [2,7])
-game.gameboard.pawn_moves([1,1], [2,1])
-game.gameboard.bishop_moves([0,5], [5,0])
-game.gameboard.knight_moves([0,1], [2,2])
-game.gameboard.queen_moves([0,3], [3,6])
-game.gameboard.king_moves([0,4], [1,4])
-game.gameboard.check?
-game.gameboard.king_moves([0,4], [1,5])
-game.gameboard.check?
-p game.gameboard.checkmate?
-game.gameboard.queen_moves([0,3], [0,4])
-game.gameboard.check?
-p game.gameboard.checkmate?
-game.gameboard.bishop_moves([5,0], [4,1])
-game.gameboard.check?
-p game.gameboard.checkmate?
-game.gameboard.knight_moves([2,2], [0,3])
-game.gameboard.check?
-p game.gameboard.checkmate?
+game_play = true
+
+game = Game.new(player1, player2)
+while game_play
+	game.play
+end
