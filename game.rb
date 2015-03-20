@@ -243,11 +243,11 @@ class Board
 		possible_moves = []
 		pieces.each do |piece|
 			if piece[0].type.class == Pawn
-			#	possible_moves << possible_pawn_moves(piece[1])
-			#elsif piece[0].type.class == Rook
-			#	possible_moves << possible_rook_moves(piece[1])
-			#elsif piece[0].type.class == Bishop
-			#	possible_moves << possible_bishop_moves(piece[1])				
+				possible_moves << possible_pawn_moves(piece[1])
+			elsif piece[0].type.class == Rook
+				possible_moves << possible_rook_moves(piece[1])
+			elsif piece[0].type.class == Bishop
+				possible_moves << possible_bishop_moves(piece[1])				
 			elsif piece[0].type.class == Knight
 				possible_moves << possible_knight_moves(piece[1])		
 			elsif piece[0].type.class == Queen
@@ -256,8 +256,7 @@ class Board
 				possible_moves << possible_king_moves(piece[1])
 			end						
 		end
-		possible_moves =possible_moves.flatten(1).uniq
-		p possible_moves.sort
+		possible_moves =possible_moves.flatten(1).uniq.sort
 	end
 
 	def check?
@@ -272,6 +271,7 @@ class Board
 				end
 			end
 		end	
+		# Determines if king is currently in "check"
 		if all_possible_moves(opponent_pieces).include? king_position
 			p "Check! Player must move King this turn."
 		end
@@ -280,21 +280,30 @@ class Board
 
 # This section contains code related to the pawn's moves.
 
-	def legal_pawn(start_arr, finish_arr)
-		# If pawn has not moved at all, it can take a double step straight forward.
-		if start_arr[0] == 1
-			if ( (finish_arr[0] == 2) || (finish_arr[0] == 3) ) && ( finish_arr[1] == start_arr[1] )
-				true
-			else
-				false
-			end
-		else
-			if ( finish_arr[0] == (start_arr[0] + 1) ) && ( finish_arr[1] == start_arr[1] )
-				true
-			else
-				false
+	def possible_pawn_moves(start_arr)
+		x = start_arr[1]
+		y = start_arr[0]
+		candidates = []
+		candidates << [y+1, x]
+		# If pawn has not moved before, it can take a double step straight forward.
+		if y == 1
+			candidates << [y+2, x]
+		end
+		choices = []
+		# Not a candidate if player's own pieces in the way
+		candidates.delete_if do |pos|
+			if !(@board[pos] == "*")
+				if @board[pos].type.color == @board[start_arr].type.color
+					true
+				end
 			end
 		end
+		# Can only move up 2 pieces if no pieces in the way.
+		if (candidates.include? [y+2, x]) && !(candidates.include? [y+1,x])
+			candidates = []
+		end
+		# Make sure possible move is on the board
+		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
 	end
 
 	def overtake_pawn(start_arr, finish_arr)
@@ -316,7 +325,7 @@ class Board
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
 		# Checks if pawn can legally perform the instructed move.
-		elsif legal_pawn(start_arr, finish_arr) && !occupied(finish_arr)
+		elsif possible_pawn_moves(start_arr).include? finish_arr
 			# Case where pawn reaches other side of board. Can be promoted to a new piece.
 			if finish_arr[0] == 7
 				ans = get_input("You can promote your pawn. Please select what piece you would like to promote it to: Queen, Rook, Knight, Bishop, or Pawn").downcase
@@ -339,53 +348,117 @@ class Board
 
 # This section contains code related to the rook's moves.
 
-	def legal_rook(start_arr, finish_arr)
-		can_move = true
-		# Rook moving horizontally
-		if finish_arr[0] == start_arr[0]
-			# Checks if any squares between start and finish are occupied. If so, cannot move to finish.
-			for i in (start_arr[1]+1)..finish_arr[1]
-				if occupied([start_arr[0],i])
-					can_move = false
+	def possible_rook_moves(start_arr)
+		x = start_arr[1]
+		y = start_arr[0]
+		candidates = []
+		# Checks how many spaces rook can move up
+		move_up = true
+		i = 1		
+		while move_up && i < 8
+			pos = [y+i, x]
+			if pos[0] >= 8	
+				move_up = false
+			else	
+				if !(@board[pos] == "*")
+					if @board[pos].type.color == @board[start_arr].type.color
+						move_up = false
+					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+						candidates << pos
+						move_up = false
+					end
+				else
+					candidates << pos
 				end
+				i += 1
 			end
-		# Rook moving vertically
-		elsif finish_arr[1] == start_arr[1]
-			# Checks if any squares between start and finish are occupied. If so, cannot move to finish.
-			for i in (start_arr[0]+1)..finish_arr[0]
-				if occupied([i,start_arr[1]])
-					can_move = false
-				end
-			end
-		else
-			true
 		end
-		can_move
-	end
 
-	def overtake_rook(start_arr, finish_arr)
-		if ( finish_arr[0] == (start_arr[0] + 1) ) && (( finish_arr[1] == start_arr[1] + 1 ) || ( finish_arr[1] == start_arr[1] - 1 ))
-			if occupied(finish_arr)
-				true
+		# Checks how many spaces rook can move down
+		move_down = true		
+		i = 1	
+		while move_down && i < 8
+			pos = [y-i, x]
+			if pos[0] < 0	
+				move_down = false
+			else	
+				if !(@board[pos] == "*")
+					if @board[pos].type.color == @board[start_arr].type.color
+						move_down = false
+					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+						candidates << pos
+						move_down = false
+					end
+				else
+					candidates << pos
+				end
+				i += 1
 			end
-		else
-			false
 		end
+
+		# Checks how many spaces rook can move right
+		move_right = true		
+		i = 1	
+		while move_right && i < 8
+			pos = [y, x+1]
+			if pos[1] > 7	
+				move_right = false
+			else	
+				if !(@board[pos] == "*")
+					if @board[pos].type.color == @board[start_arr].type.color
+						move_right = false
+					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+						candidates << pos
+						move_right = false
+					end
+				else
+					candidates << pos
+				end
+				i += 1
+			end
+		end
+
+		# Checks how many spaces rook can move left
+		move_left = true		
+		i = 1	
+		while move_left && i < 8
+			pos = [y, x+1]
+			if pos[1] > 7	
+				move_left = false
+			else	
+				if !(@board[pos] == "*")
+					if @board[pos].type.color == @board[start_arr].type.color
+						move_left = false
+					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+						candidates << pos
+						move_left = false
+					end
+				else
+					candidates << pos
+				end
+				i += 1
+			end
+		end		
+		candidates
 	end
 
 	def rook_moves(start_arr, finish_arr)
 		color = @color.pop
-		# Checks if rook overtakes another pieces
-		if overtake_rook(start_arr, finish_arr)
-			puts "Rook at #{start_arr} moves to #{finish_arr}."
-			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
-		# Checks if rook can legally perform the instructed move.
-		elsif legal_rook(start_arr, finish_arr) && !occupied(finish_arr)
-			puts "Rook at #{start_arr} moves to #{finish_arr}."
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
+		if possible_rook_moves(start_arr).include? finish_arr
+			# Checks if rook overtakes another pieces
+			if occupied(finish_arr)
+				if !( @board[finish_arr].type.color == @board[start_arr].type.color )
+				puts "Rook at #{start_arr} moves to #{finish_arr}."
+				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"
+				end
+			# If not, then simply moves piece
+			else
+				puts "Rook at #{start_arr} moves to #{finish_arr}."
+				@board[finish_arr] = @board[start_arr]
+				@board[start_arr] = "*"		
+			end		
 		end
 		puts "---------------"
 		show_board
@@ -397,56 +470,98 @@ class Board
 
 # This section contains code related to the bishops's moves.
 
-	def legal_bishop(start_arr, finish_arr)
-		diagonal = true
-		can_move = true
-		curr_arr = start_arr
-		# Bishop moving up & right
-		if finish_arr[0] > start_arr[0] && finish_arr[1] > start_arr[1]
-			# Checks if any squares between start and finish are occupied. If so, cannot move to finish.
-			# e.g. (0,2) - > (1,3). (4,6) -> (5,7)
-			while can_move && !(curr_arr == finish_arr)
-				if occupied([curr_arr[0] + 1,curr_arr[1] + 1]) || curr_arr[0] > 7 || curr_arr[1] > 7
-					can_move = false
+	def possible_bishop_moves(start_arr)
+		x = start_arr[1]
+		y = start_arr[0]
+		candidates = []
+		# Checks how many spaces rook can move up & right
+		move_up_right = true
+		i = 1		
+		while move_up_right && i < 8
+			pos = [y+i, x+i]
+			if pos[0] >= 8 || pos[1] >= 8
+				move_up_right = false
+			else	
+				if !(@board[pos] == "*")
+					if @board[pos].type.color == @board[start_arr].type.color
+						move_up_right = false
+					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+						candidates << pos
+						move_up_right = false
+					end
 				else
-					curr_arr = [curr_arr[0] + 1, curr_arr[1] + 1]
+					candidates << pos
 				end
+				i += 1
 			end
-		# Bishop moving up & left
-		elsif finish_arr[0] > start_arr[0] && finish_arr[1] < start_arr[1]
-			# e.g. (0,2) - > (1,1). (0,2) -> (2,0)
-			while can_move && !(curr_arr == finish_arr)
-				#p curr_arr
-				if occupied([curr_arr[0] + 1,curr_arr[1] - 1]) ||curr_arr[0] > 7 || curr_arr[1] < 1
-					can_move = false
+		end
+
+		# Checks how many spaces rook can move down & right
+		move_down_right = true		
+		i = 1	
+		while move_down_right && i < 8
+			pos = [y-i, x+i]
+			if pos[0] < 0 || pos[1] >= 8
+				move_down_right = false
+			else	
+				if !(@board[pos] == "*")
+					if @board[pos].type.color == @board[start_arr].type.color
+						move_down_right = false
+					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+						candidates << pos
+						move_down_right = false
+					end
 				else
-					curr_arr = [curr_arr[0] + 1, curr_arr[1] - 1]
+					candidates << pos
 				end
-			end	
-		# Bishop moving down & right
-		elsif finish_arr[0] < start_arr[0] && finish_arr[1] > start_arr[1]
-			# e.g. (3,5) - > (2,6)
-			while can_move && !(curr_arr == finish_arr)
-				#p curr_arr
-				if occupied([curr_arr[0] - 1,curr_arr[1] + 1]) || curr_arr[0] < 1 || curr_arr[1] > 7
-					can_move = false
-				else
-					curr_arr = [curr_arr[0] - 1, curr_arr[1] + 1]
-				end
+				i += 1
 			end
-		# Bishop moving down & left
-		elsif finish_arr[0] < start_arr[0] && finish_arr[1] < start_arr[1]
-			# e.g. (3,5) - > (2,4)
-			while can_move && !(curr_arr == finish_arr)
-				#p curr_arr
-				if occupied([curr_arr[0] - 1,curr_arr[1] - 1]) || curr_arr[0] < 1 || curr_arr[1] < 1
-					can_move = false
+		end
+
+		# Checks how many spaces rook can move up & left
+		move_up_left = true		
+		i = 1	
+		while move_up_left && i < 8
+			pos = [y+i, x-i]
+			if pos[0] >= 8 || pos[1] < 0	
+				move_up_left = false
+			else	
+				if !(@board[pos] == "*")
+					if @board[pos].type.color == @board[start_arr].type.color
+						move_up_left = false
+					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+						candidates << pos
+						move_up_left = false
+					end
 				else
-					curr_arr = [curr_arr[0] - 1, curr_arr[1] - 1]
+					candidates << pos
 				end
-			end			
-		end			
-		p can_move
+				i += 1
+			end
+		end
+
+		# Checks how many spaces rook can move down & left
+		move_down_left = true		
+		i = 1	
+		while move_down_left && i < 8
+			pos = [y-i, x-i]
+			if pos[0] < 0 || pos[1] < 0	
+				move_down_left = false
+			else	
+				if !(@board[pos] == "*")
+					if @board[pos].type.color == @board[start_arr].type.color
+						move_down_left = false
+					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+						candidates << pos
+						move_down_left = false
+					end
+				else
+					candidates << pos
+				end
+				i += 1
+			end
+		end		
+		candidates
 	end
 
 	def overtake_bishop(start_arr, finish_arr)
@@ -463,58 +578,23 @@ class Board
 		end
 	end				
 
-	# Clean this up to make more efficeint
 	def bishop_moves(start_arr, finish_arr)
 		color = @color.pop
-		# Checks if rook overtakes another pieces
-		if finish_arr[0] > start_arr[0] && finish_arr[1] > start_arr[1]
-			if overtake_bishop(start_arr, finish_arr) && legal_bishop(start_arr, [finish_arr[0] - 1, finish_arr[1] - 1])
+		if possible_bishop_moves(start_arr).include? finish_arr
+			# Checks if bishop overtakes another pieces
+			if occupied(finish_arr)
+				if !( @board[finish_arr].type.color == @board[start_arr].type.color )
 				puts "Bishop at #{start_arr} moves to #{finish_arr}."
 				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
 				@board[finish_arr] = @board[start_arr]
 				@board[start_arr] = "*"
-			# Checks if rook can legally perform the instructed move.
-			elsif legal_bishop(start_arr, finish_arr) && !occupied(finish_arr)
-				puts "Bishop at #{start_arr} moves to #{finish_arr}."			
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
-			end
-		elsif finish_arr[0] > start_arr[0] && finish_arr[1] < start_arr[1]
-			if overtake_bishop(start_arr, finish_arr) && legal_bishop(start_arr, [finish_arr[0] - 1, finish_arr[1] + 1])
+				end
+			# If not, then simply moves piece
+			else
 				puts "Bishop at #{start_arr} moves to #{finish_arr}."
-				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
 				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
-			# Checks if rook can legally perform the instructed move.
-			elsif legal_bishop(start_arr, finish_arr) && !occupied(finish_arr)
-				puts "Bishop at #{start_arr} moves to #{finish_arr}."			
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
-			end
-		elsif finish_arr[0] < start_arr[0] && finish_arr[1] > start_arr[1]
-			if overtake_bishop(start_arr, finish_arr) && legal_bishop(start_arr, [finish_arr[0] + 1, finish_arr[1] - 1])
-				puts "Bishop at #{start_arr} moves to #{finish_arr}."
-				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
-			# Checks if rook can legally perform the instructed move.
-			elsif legal_bishop(start_arr, finish_arr) && !occupied(finish_arr)
-				puts "Bishop at #{start_arr} moves to #{finish_arr}."			
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
-			end				
-		else
-			if overtake_bishop(start_arr, finish_arr) && legal_bishop(start_arr, [finish_arr[0] + 1, finish_arr[1] + 1])
-				puts "Bishop at #{start_arr} moves to #{finish_arr}."
-				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
-			# Checks if rook can legally perform the instructed move.
-			elsif legal_bishop(start_arr, finish_arr) && !occupied(finish_arr)
-				puts "Bishop at #{start_arr} moves to #{finish_arr}."			
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
-			end			
+				@board[start_arr] = "*"		
+			end		
 		end
 		puts "---------------"
 		show_board
@@ -523,7 +603,6 @@ class Board
 		puts "---------------"
 		show_board
 	end
-
 
 # This section contains code related to the knight's moves.
 
@@ -540,6 +619,14 @@ class Board
 		candidates << [x-2,y+1]
 		candidates << [x-2,y+1]
 		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
+		children.delete_if do |child|
+			if !(@board[child] == "*")
+				if @board[child].type.color == @board[start_arr].type.color
+					true
+				end
+			end
+		end
+		children
 	end
 
 	def legal_knight(start_arr, finish_arr)
@@ -570,7 +657,7 @@ class Board
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
 		# Checks if knight can legally perform the instructed move.
-		elsif legal_knight(start_arr, finish_arr) && !occupied(finish_arr)
+		elsif legal_knight(start_arr, finish_arr)
 			puts "Knight at #{start_arr} moves to #{finish_arr}."
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
@@ -587,138 +674,10 @@ class Board
 # This section contains code related to the queen's moves.
 
 	def possible_queen_moves(start_arr)
-		x = start_arr[0]
-		y = start_arr[1]
-		candidates = []
-		candidates << [x+1,y]
-		candidates << [x+2,y]
-		candidates << [x+3,y]
-		candidates << [x+4,y]
-		candidates << [x+5,y]
-		candidates << [x+6,y]
-		candidates << [x+7,y]
-		candidates << [x-1,y]
-		candidates << [x-2,y]
-		candidates << [x-3,y]
-		candidates << [x-4,y]
-		candidates << [x-5,y]
-		candidates << [x-6,y]
-		candidates << [x-7,y]		
-		candidates << [x,y+1]				
-		candidates << [x,y+2]	
-		candidates << [x,y+3]	
-		candidates << [x,y+4]	
-		candidates << [x,y+5]	
-		candidates << [x,y+6]	
-		candidates << [x,y+7]
-		candidates << [x,y-1]				
-		candidates << [x,y-2]	
-		candidates << [x,y-3]	
-		candidates << [x,y-4]	
-		candidates << [x,y-5]	
-		candidates << [x,y-6]	
-		candidates << [x,y-7]													
-		candidates << [x+1,y+1]
-		candidates << [x+2,y+2]
-		candidates << [x+3,y+3]
-		candidates << [x+4,y+4]
-		candidates << [x+5,y+5]
-		candidates << [x+6,y+6]
-		candidates << [x+7,y+7]
-		candidates << [x-1,y-1]
-		candidates << [x-2,y-2]
-		candidates << [x-3,y-3]
-		candidates << [x-4,y-4]
-		candidates << [x-5,y-5]
-		candidates << [x-6,y-6]
-		candidates << [x-7,y-7]		
-		candidates << [x-1,y+1]				
-		candidates << [x-2,y+2]	
-		candidates << [x-3,y+3]	
-		candidates << [x-4,y+4]	
-		candidates << [x-5,y+5]	
-		candidates << [x-6,y+6]	
-		candidates << [x-7,y+7]
-		candidates << [x+1,y-1]				
-		candidates << [x+2,y-2]	
-		candidates << [x+3,y-3]	
-		candidates << [x+4,y-4]	
-		candidates << [x+5,y-5]	
-		candidates << [x+6,y-6]	
-		candidates << [x+7,y-7]
-		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
-	end
-
-	def path_queen_check(start_arr, finish_arr)
-		can_move = true
-		x_start = start_arr[0]
-		y_start = start_arr[1]
-		x_finish = finish_arr[0]
-		y_finish = finish_arr[1]	
-		# Check if can move up on y-axis
-		if x_finish == x_start && y_finish > y_start
-			y_finish -= 1
-			while y_finish > y_start && can_move
-				can_move = !( occupied([x_finish, y_finish]) )
-				y_finish -= 1				
-			end
-		# Check if can move up on x-axis	
-		elsif x_finish > x_start && y_finish == y_start
-			x_finish -= 1
-			while x_finish > x_start && can_move
-				can_move = !( occupied([x_finish, y_finish]) )
-				x_finish -= 1
-			end
-		# Check if can move down on y-axis	
-		elsif x_finish == x_start && y_finish < y_start
-			y_finish += 1
-			while y_finish < y_start && can_move
-				can_move = !( occupied([x_finish, y_finish]) )
-				y_finish += 1
-			end
-		# Check if can move down on x-axis		
-		elsif x_finish < x_start && y_finish == y_start
-			x_finish += 1
-			while x_finish < x_start && can_move
-				can_move = !( occupied([x_finish, y_finish]) )
-				x_finish += 1
-			end
-		# Check if can diagonally up & right
-		elsif x_finish > x_start && y_finish > y_start
-			x_finish -= 1
-			y_finish -= 1
-			while x_finish > x_start && can_move
-				can_move = !( occupied([x_finish, y_finish]) )
-				x_finish -= 1
-				y_finish -= 1				
-			end	
-		# Check if can diagonally down & right			
-		elsif x_finish > x_start && y_finish < y_start
-			x_finish -= 1
-			y_finish += 1			
-			while x_finish > x_start && can_move
-				can_move = !( occupied([x_finish, y_finish]) )
-				x_finish -= 1
-				y_finish += 1				
-			end	
-		elsif x_finish < x_start && y_finish > y_start
-			x_finish += 1
-			y_finish -= 1			
-			while x_finish < x_start && can_move
-				can_move = !( occupied([x_finish, y_finish]) )
-				x_finish += 1
-				y_finish -= 1				
-			end	
-		else 
-			while x_finish < x_start && can_move
-			x_finish += 1
-			y_finish += 1				
-				can_move = !( occupied([x_finish, y_finish]) )
-				x_finish += 1
-				y_finish += 1				
-			end
-		end
-		can_move
+		children = []
+		children << possible_rook_moves(start_arr)
+		children << possible_bishop_moves(start_arr)
+		children = children.flatten(1)
 	end
 
 	def legal_queen(start_arr, finish_arr)
@@ -744,13 +703,13 @@ class Board
 	def queen_moves(start_arr, finish_arr)
 		color = @color.pop
 		# Checks if queen overtakes another pieces
-		if overtake_queen(start_arr, finish_arr) && path_queen_check(start_arr, finish_arr) && legal_queen(start_arr, finish_arr)
+		if overtake_queen(start_arr, finish_arr) && legal_queen(start_arr, finish_arr)
 			puts "Queen at #{start_arr} moves to #{finish_arr}."
 			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
 		# Checks if queen can legally perform the instructed move.
-		elsif path_queen_check(start_arr, finish_arr) && legal_queen(start_arr, finish_arr) && !occupied(finish_arr)
+		elsif legal_queen(start_arr, finish_arr)
 			puts "Queen at #{start_arr} moves to #{finish_arr}."
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
@@ -779,6 +738,17 @@ class Board
 		candidates << [x-1,y+1]				
 		candidates << [x+1,y-1]				
 		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
+		children.delete_if do |child|
+			if !(@board[child] == "*")
+				# If pieces not same color
+				if @board[child].type.color == @board[start_arr].type.color
+					if occupied(child)
+						can_do = true
+					end
+				end
+			end
+		end
+		children
 	end
 
 	def legal_king(start_arr, finish_arr)
@@ -790,7 +760,6 @@ class Board
 		can_do = false
 		# If piece not empty
 		if !(@board[finish_arr] == "*")
-			@board[finish_arr]
 			# If pieces not same color
 			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
 				if occupied(finish_arr)
@@ -917,27 +886,20 @@ victory = false
 
 game = Game.new('player1', 'player2')
 game.gameboard.show_board
+game.gameboard.possible_pawn_moves([1,0])
 game.gameboard.pawn_moves([1,0], [3,0])
 game.gameboard.pawn_moves([1,6], [3,6])
-game.gameboard.rook_moves([0,0], [2,0])
-game.gameboard.pawn_moves([1,0], [3,0])
-game.gameboard.rook_moves([2,0], [2,4])
-game.gameboard.pawn_moves([1,3], [3,3])
-game.gameboard.rook_moves([2,4], [3,4])
-game.gameboard.bishop_moves([0,2], [3,5])
-game.gameboard.pawn_moves([1,3], [3,3])
-game.gameboard.bishop_moves([3,5], [4,4])
-game.gameboard.pawn_moves([7,1], [7,2])
-game.gameboard.bishop_moves([4,4], [6,2])
+game.gameboard.pawn_moves([3,0], [4,1])
+game.gameboard.pawn_moves([1,7], [3,7])
+game.gameboard.rook_moves([0,0], [4,0])
+game.gameboard.pawn_moves([1,4], [2,4])
+game.gameboard.pawn_moves([1,4], [2,4])
+game.gameboard.rook_moves([0,7], [2,7])
+game.gameboard.pawn_moves([1,5], [2,5])
+game.gameboard.bishop_moves([0,5], [5,0])
 game.gameboard.knight_moves([0,1], [2,2])
-game.gameboard.knight_moves([0,1], [2,2])
-game.gameboard.knight_moves([2,2], [4,1])
-game.gameboard.queen_moves([0,3], [2,3])
-game.gameboard.queen_moves([0,3], [6,3])
-game.gameboard.queen_moves([2,3], [2,6])
-game.gameboard.queen_moves([6,3], [6,5])
-game.gameboard.king_moves([0,4], [0,3])
-game.gameboard.king_moves([0,4], [0,3])
-game.gameboard.king_moves([0,3], [1,3])
-game.gameboard.king_moves([0,3], [1,3])
+game.gameboard.queen_moves([0,3], [3,6])
+game.gameboard.king_moves([0,4], [1,4])
+game.gameboard.check?
+game.gameboard.king_moves([0,4], [1,5])
 game.gameboard.check?
