@@ -7,33 +7,6 @@ class Game
 		@players = player2
 	end
 
-	def play
-		gameboard.show_board
-		puts "#{@player1} select a piece (by location) that you want to move:"
-		start_arr = gets.chomp[1..3]
-		puts "Where do you want to move it? (by location)"
-		finish_arr = gets.chomp[1..3]
-		start_arr = start_arr.split(",").map { |s| s.to_i }
-		finish_arr = finish_arr.split(",").map { |s| s.to_i }
-
-		piece_type = gameboard.board[start_arr].type.class.to_s
-		# Calls appropriate function to move the piece
-		case piece_type
-		when "Pawn"
-			gameboard.pawn_moves(start_arr, finish_arr)
-		when "Rook"
-			gameboard.rook_moves(start_arr, finish_arr)
-		when "Bishop"
-			gameboard.bishop_moves(start_arr, finish_arr)
-		when "Knight"
-			gameboard.knight_moves(start_arr, finish_arr)
-		when "Queen"
-			gameboard.queen_moves(start_arr, finish_arr)
-		else
-			gameboard.king_moves(start_arr, finish_arr)			
-		end		
-	end
-
 end
 
 class Board
@@ -51,8 +24,46 @@ class Board
 				  [0,0] => Piece.new('rook','w'), [0,1] => Piece.new('knight','w'), [0,2] => Piece.new('bishop','w'), [0,3] => Piece.new('queen','w'), [0,4] => Piece.new('king','w'), [0,5] => Piece.new('bishop','w'), [0,6] => Piece.new('knight','w'), [0,7] => Piece.new('rook','w'), [0,8] => '',}
 		# 50 items in this list. Used to apply 50 moves rule (draw after 50 moves).
 		@player = [1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]
-		@color = ['b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w']
+		@color = ['b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w']
 	end
+
+	def play(player)
+		show_board
+		puts "#{player} select a piece (by location) that you want to move:"
+		start_arr = gets.chomp[1..3]
+		puts "Where do you want to move it? (by location)"
+		finish_arr = gets.chomp[1..3]
+		start_arr = start_arr.split(",").map { |s| s.to_i }
+		finish_arr = finish_arr.split(",").map { |s| s.to_i }
+
+		begin
+			piece_type = @board[start_arr].type.class.to_s
+		rescue
+			puts "Invalid move. Try again!"
+			play(player)
+		end
+
+		# Calls appropriate function to move the piece
+		case piece_type
+		when "Pawn"
+			pawn_moves(start_arr, finish_arr, player)
+		when "Rook"
+			rook_moves(start_arr, finish_arr)
+		when "Bishop"
+			bishop_moves(start_arr, finish_arr)
+		when "Knight"
+			knight_moves(start_arr, finish_arr)
+		when "Queen"
+			queen_moves(start_arr, finish_arr)
+		else
+			king_moves(start_arr, finish_arr)			
+		end		
+		check?
+		checkmate?
+		#Consider gameover case?
+		# Add draw case.
+		# Add serialize for the board
+	end	
 
 	# Displays the current board
 	def show_board
@@ -348,16 +359,19 @@ class Board
 		end
 	end
 
-	def pawn_moves(start_arr, finish_arr)
-		color = @color.pop
+	def pawn_moves(start_arr, finish_arr, player)
 		# Checks if pawn overtakes another pieces
 		if overtake_pawn(start_arr, finish_arr)
+			color = @color.pop
+			p 'ahahahaa'
 			puts "Pawn at #{start_arr} moves to #{finish_arr}."
 			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
 			@board[finish_arr] = @board[start_arr]
 			@board[start_arr] = "*"
 		# Checks if pawn can legally perform the instructed move.
 		elsif possible_pawn_moves(start_arr).include? finish_arr
+			color = @color.pop
+			p 'hsdasdasd'
 			# Case where pawn reaches other side of board. Can be promoted to a new piece.
 			if finish_arr[0] == 7
 				ans = get_input("You can promote your pawn. Please select what piece you would like to promote it to: Queen, Rook, Knight, Bishop, or Pawn").downcase
@@ -369,13 +383,15 @@ class Board
 				@board[finish_arr] = @board[start_arr]
 				@board[start_arr] = "*"
 			end
+		else
+			puts "Invalid move. Try again!"
+			play(player)
 		end
 		puts "---------------"
 		show_board
 		puts "Switching sides... Player #{@player.pop}'s turn."
 		rotate_board
 		puts "---------------"
-		show_board
 	end
 
 # This section contains code related to the rook's moves.
@@ -497,7 +513,6 @@ class Board
 		puts "Switching sides... Player #{@player.pop}'s turn."
 		rotate_board
 		puts "---------------"
-		show_board
 	end
 
 # This section contains code related to the bishops's moves.
@@ -633,7 +648,6 @@ class Board
 		puts "Switching sides... Player #{@player.pop}'s turn."
 		rotate_board
 		puts "---------------"
-		show_board
 	end
 
 # This section contains code related to the knight's moves.
@@ -699,7 +713,6 @@ class Board
 		puts "Switching sides... Player #{@player.pop}'s turn."
 		rotate_board
 		puts "---------------"
-		show_board
 	end
 
 
@@ -751,7 +764,6 @@ class Board
 		puts "Switching sides... Player #{@player.pop}'s turn."
 		rotate_board
 		puts "---------------"
-		show_board
 	end	
 
 
@@ -821,7 +833,6 @@ class Board
 		puts "Switching sides... Player #{@player.pop}'s turn."
 		rotate_board
 		puts "---------------"
-		show_board
 	end	
 
 end
@@ -916,8 +927,10 @@ puts "Enter name of player 2:"
 player2 = gets.chomp.to_s
 
 game_play = true
+player = [player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2,player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2]
 
 game = Game.new(player1, player2)
 while game_play
-	game.play
+	game.gameboard.play(player.shift)
 end
+puts "Game over. Great game!"
