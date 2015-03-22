@@ -1,2 +1,4 @@
-# chess
-A command line Chess game where two players can play against each other.
+﻿#  Command line chess
+Play command line chess! A game where 2 players can play against each other.  
+
+
