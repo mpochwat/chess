@@ -1,12 +1,9 @@
 class Game
 	attr_reader :gameboard
 
-	def initialize(player1, player2)
+	def initialize()
 		@gameboard = Board.new
-		@player1 = player1
-		@players = player2
 	end
-
 end
 
 class Board
@@ -22,46 +19,47 @@ class Board
 				  [2,0] => "*", [2,1] => "*", [2,2] => "*", [2,3] => "*", [2,4] => "*", [2,5] => "*", [2,6] => "*", [2,7] => "*", [2,8] => '',
 				  [1,0] => Piece.new('pawn','w'), [1,1] => Piece.new('pawn','w'), [1,2] => Piece.new('pawn','w'), [1,3] => Piece.new('pawn','w'), [1,4] => Piece.new('pawn','w'), [1,5] => Piece.new('pawn','w'), [1,6] => Piece.new('pawn','w'), [1,7] => Piece.new('pawn','w'), [1,8] => '',
 				  [0,0] => Piece.new('rook','w'), [0,1] => Piece.new('knight','w'), [0,2] => Piece.new('bishop','w'), [0,3] => Piece.new('queen','w'), [0,4] => Piece.new('king','w'), [0,5] => Piece.new('bishop','w'), [0,6] => Piece.new('knight','w'), [0,7] => Piece.new('rook','w'), [0,8] => '',}
-		# 50 items in this list. Used to apply 50 moves rule (draw after 50 moves).
-		@player = [1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]
 		@color = ['b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w','b','w']
 	end
 
+	# Player selects which piece to move. Based on piece's location
 	def play(player)
 		show_board
-		puts "#{player} select a piece (by location) that you want to move:"
-		start_arr = gets.chomp[1..3]
-		puts "Where do you want to move it? (by location)"
-		finish_arr = gets.chomp[1..3]
+		start_arr = get_input("#{player} select a piece (by location) that you want to move")[1..3]
+		finish_arr = get_input("Where do you want to move it? (by location)")[1..3]
+		puts " "
+
 		start_arr = start_arr.split(",").map { |s| s.to_i }
 		finish_arr = finish_arr.split(",").map { |s| s.to_i }
 
 		begin
-			piece_type = @board[start_arr].type.class.to_s
+			piece_type = @board[start_arr].type.to_s
 		rescue
 			puts "Invalid move. Try again!"
 			play(player)
 		end
 
-		# Calls appropriate function to move the piece
+		piece_moves(piece_type, start_arr, finish_arr, player)
+	end
+
+	# Calls appropriate function to move selected piece
+	def piece_moves(piece_type, start_arr, finish_arr, player)
 		case piece_type
 		when "Pawn"
 			pawn_moves(start_arr, finish_arr, player)
 		when "Rook"
-			rook_moves(start_arr, finish_arr)
+			rook_moves(start_arr, finish_arr, player)
 		when "Bishop"
-			bishop_moves(start_arr, finish_arr)
+			bishop_moves(start_arr, finish_arr, player)
 		when "Knight"
-			knight_moves(start_arr, finish_arr)
+			knight_moves(start_arr, finish_arr, player)
 		when "Queen"
-			queen_moves(start_arr, finish_arr)
+			queen_moves(start_arr, finish_arr, player)
 		else
-			king_moves(start_arr, finish_arr)			
+			king_moves(start_arr, finish_arr, player)			
 		end		
 		check?
 		checkmate?
-		#Consider gameover case?
-		# Add draw case.
 		# Add serialize for the board
 	end	
 
@@ -69,29 +67,29 @@ class Board
 	def show_board
 		@board.values.each do |space|
 			if !(space.class == String)
-				if (space.type.class == Pawn) && (space.type.color == 'w')
+				if (space.type == 'pawn') && (space.color == 'w')
 					print "\u2659" + " "
-				elsif (space.type.class == Pawn) && (space.type.color == 'b')
+				elsif (space.type == 'pawn') && (space.color == 'b')
 					print "\u265F" + " "	
-				elsif (space.type.class == Rook) && (space.type.color == 'w')
+				elsif (space.type == 'rook') && (space.color == 'w')
 					print "\u2656" + " "			
-				elsif (space.type.class == Rook) && (space.type.color == 'b')
+				elsif (space.type == 'rook') && (space.color == 'b')
 					print "\u265C" + " "		
-				elsif (space.type.class == Knight) && (space.type.color == 'w')
+				elsif (space.type == 'knight') && (space.color == 'w')
 					print "\u2658" + " "			
-				elsif (space.type.class == Knight) && (space.type.color == 'b')
+				elsif (space.type == 'knight') && (space.color == 'b')
 					print "\u265E" + " "	
-				elsif (space.type.class == Bishop) && (space.type.color == 'w')
+				elsif (space.type == 'bishop') && (space.color == 'w')
 					print "\u2657" + " "			
-				elsif (space.type.class == Bishop) && (space.type.color == 'b')
+				elsif (space.type == 'bishop') && (space.color == 'b')
 					print "\u265D" + " "	
-				elsif (space.type.class == Queen) && (space.type.color == 'w')
+				elsif (space.type == 'queen') && (space.color == 'w')
 					print "\u2655" + " "			
-				elsif (space.type.class == Queen) && (space.type.color == 'b')
+				elsif (space.type == 'queen') && (space.color == 'b')
 					print "\u265B" + " "			
-				elsif (space.type.class == King) && (space.type.color == 'w')
+				elsif (space.type == 'king') && (space.color == 'w')
 					print "\u2654" + " "			
-				elsif (space.type.class == King) && (space.type.color == 'b')
+				elsif (space.type == 'king') && (space.color == 'b')
 					print "\u265A" + " "																													
 				else
 					print space
@@ -240,11 +238,7 @@ class Board
 
 	# Determines if square is occupied by another piece.
 	def occupied(pos)
-		if !( @board[pos] == "*" )
-			true
-		else
-			false
-		end
+		!( @board[pos] == "*" ) ? true : false
 	end	
 
 	def get_input(prompt)
@@ -262,10 +256,8 @@ class Board
 		king_position = nil
 		for i in 0..7
 			for j in 0..7
-				if !( @board[[i,j]] == "*" ) && ( @board[[i,j]].type.color == current_color )
-					if @board[[i,j]].type.class == King
-						king_position = [i,j]
-					end
+				if !( @board[[i,j]] == "*" ) && ( @board[[i,j]].color == current_color ) && ( @board[[i,j]].type == 'king' )
+					king_position = [i,j]
 				end
 			end
 		end
@@ -276,15 +268,15 @@ class Board
 	def all_possible_moves(pieces)
 		possible_moves = []
 		pieces.each do |piece|
-			if piece[0].type.class == Pawn
+			if piece[0].type == 'pawn'
 				possible_moves << possible_pawn_moves(piece[1])
-			elsif piece[0].type.class == Rook
+			elsif piece[0].type == 'rook'
 				possible_moves << possible_rook_moves(piece[1])
-			elsif piece[0].type.class == Bishop
+			elsif piece[0].type == 'bishop'
 				possible_moves << possible_bishop_moves(piece[1])				
-			elsif piece[0].type.class == Knight
+			elsif piece[0].type == 'knight'
 				possible_moves << possible_knight_moves(piece[1])		
-			elsif piece[0].type.class == Queen
+			elsif piece[0].type == 'queen'
 				possible_moves << possible_queen_moves(piece[1])		
 			else 
 				possible_moves << possible_king_moves(piece[1])
@@ -300,7 +292,7 @@ class Board
 		opponent_pieces = []
 		for i in 0..7
 			for j in 0..7
-				if !( @board[[i,j]] == "*" ) && ( @board[[i,j]].type.color == opponent_color )
+				if !( @board[[i,j]] == "*" ) && ( @board[[i,j]].color == opponent_color )
 					opponent_pieces << [ @board[[i,j]], [i,j] ]
 				end
 			end
@@ -309,7 +301,6 @@ class Board
 	end
 
 	def check?
-		# Determines if king is currently in "check"
 		if all_possible_moves(opponent_pieces).include? king_position
 			p "Check! Player must move King this turn."
 		end
@@ -319,6 +310,18 @@ class Board
 		king_moves = possible_king_moves(king_position)
 		opponent_moves = all_possible_moves(opponent_pieces)
 		(opponent_moves-king_moves).empty?
+	end
+
+	# Moves piece on board. Piece overtakes an existing opponent's piece
+	def overtaken(piece, start_arr, finish_arr)
+		overtaken(@board[start_arr].type, start_arr, finish_arr)
+	end	
+
+	# Moves piece on the board
+	def move_piece(piece, start_arr, finish_arr)
+		puts "#{piece} at #{start_arr} moves to #{finish_arr}."
+		@board[finish_arr] = @board[start_arr]
+		@board[start_arr] = "*"		
 	end
 
 # This section contains code related to the pawn's moves.
@@ -335,10 +338,8 @@ class Board
 		choices = []
 		# Not a candidate if player's own pieces in the way
 		candidates.delete_if do |pos|
-			if !(@board[pos] == "*")
-				if @board[pos].type.color == @board[start_arr].type.color
-					true
-				end
+			if !(@board[pos] == "*") && (@board[pos].color == @board[start_arr].color)
+				true
 			end
 		end
 		# Can only move up 2 pieces if no pieces in the way.
@@ -363,15 +364,10 @@ class Board
 		# Checks if pawn overtakes another pieces
 		if overtake_pawn(start_arr, finish_arr)
 			color = @color.pop
-			p 'ahahahaa'
-			puts "Pawn at #{start_arr} moves to #{finish_arr}."
-			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
+			overtaken(@board[start_arr].type, start_arr, finish_arr)
 		# Checks if pawn can legally perform the instructed move.
 		elsif possible_pawn_moves(start_arr).include? finish_arr
 			color = @color.pop
-			p 'hsdasdasd'
 			# Case where pawn reaches other side of board. Can be promoted to a new piece.
 			if finish_arr[0] == 7
 				ans = get_input("You can promote your pawn. Please select what piece you would like to promote it to: Queen, Rook, Knight, Bishop, or Pawn").downcase
@@ -379,9 +375,7 @@ class Board
 				@board[start_arr] = "*"
 			# All other cases
 			else
-				puts "Pawn at #{start_arr} moves to #{finish_arr}."
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
+				move_piece(@board[start_arr].type, start_arr, finish_arr)
 			end
 		else
 			puts "Invalid move. Try again!"
@@ -389,7 +383,7 @@ class Board
 		end
 		puts "---------------"
 		show_board
-		puts "Switching sides... Player #{@player.pop}'s turn."
+		puts "Switching sides... #{player}'s turn."
 		rotate_board
 		puts "---------------"
 	end
@@ -409,9 +403,9 @@ class Board
 				move_up = false
 			else	
 				if !(@board[pos] == "*")
-					if @board[pos].type.color == @board[start_arr].type.color
+					if @board[pos].color == @board[start_arr].color
 						move_up = false
-					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+					elsif !( @board[pos].color == @board[start_arr].color )
 						candidates << pos
 						move_up = false
 					end
@@ -431,9 +425,9 @@ class Board
 				move_down = false
 			else	
 				if !(@board[pos] == "*")
-					if @board[pos].type.color == @board[start_arr].type.color
+					if @board[pos].color == @board[start_arr].color
 						move_down = false
-					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+					elsif !( @board[pos].color == @board[start_arr].color )
 						candidates << pos
 						move_down = false
 					end
@@ -453,9 +447,9 @@ class Board
 				move_right = false
 			else	
 				if !(@board[pos] == "*")
-					if @board[pos].type.color == @board[start_arr].type.color
+					if @board[pos].color == @board[start_arr].color
 						move_right = false
-					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+					elsif !( @board[pos].color == @board[start_arr].color )
 						candidates << pos
 						move_right = false
 					end
@@ -475,9 +469,9 @@ class Board
 				move_left = false
 			else	
 				if !(@board[pos] == "*")
-					if @board[pos].type.color == @board[start_arr].type.color
+					if @board[pos].color == @board[start_arr].color
 						move_left = false
-					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+					elsif !( @board[pos].color == @board[start_arr].color )
 						candidates << pos
 						move_left = false
 					end
@@ -490,27 +484,25 @@ class Board
 		candidates
 	end
 
-	def rook_moves(start_arr, finish_arr)
-		color = @color.pop
+	def rook_moves(start_arr, finish_arr, player)
 		if possible_rook_moves(start_arr).include? finish_arr
+			color = @color.pop
 			# Checks if rook overtakes another pieces
 			if occupied(finish_arr)
-				if !( @board[finish_arr].type.color == @board[start_arr].type.color )
-				puts "Rook at #{start_arr} moves to #{finish_arr}."
-				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
+				if !( @board[finish_arr].color == @board[start_arr].color )
+				overtaken(@board[start_arr].type, start_arr, finish_arr)
 				end
 			# If not, then simply moves piece
 			else
-				puts "Rook at #{start_arr} moves to #{finish_arr}."
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"		
-			end		
+				move_piece(@board[start_arr].type, start_arr, finish_arr)
+			end	
+		else
+			puts "Invalid move. Try again!"
+			play(player)	
 		end
 		puts "---------------"
 		show_board
-		puts "Switching sides... Player #{@player.pop}'s turn."
+		puts "Switching sides... #{player}'s turn."
 		rotate_board
 		puts "---------------"
 	end
@@ -530,9 +522,9 @@ class Board
 				move_up_right = false
 			else	
 				if !(@board[pos] == "*")
-					if @board[pos].type.color == @board[start_arr].type.color
+					if @board[pos].color == @board[start_arr].color
 						move_up_right = false
-					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+					elsif !( @board[pos].color == @board[start_arr].color )
 						candidates << pos
 						move_up_right = false
 					end
@@ -552,9 +544,9 @@ class Board
 				move_down_right = false
 			else	
 				if !(@board[pos] == "*")
-					if @board[pos].type.color == @board[start_arr].type.color
+					if @board[pos].color == @board[start_arr].color
 						move_down_right = false
-					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+					elsif !( @board[pos].color == @board[start_arr].color )
 						candidates << pos
 						move_down_right = false
 					end
@@ -574,9 +566,9 @@ class Board
 				move_up_left = false
 			else	
 				if !(@board[pos] == "*")
-					if @board[pos].type.color == @board[start_arr].type.color
+					if @board[pos].color == @board[start_arr].color
 						move_up_left = false
-					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+					elsif !( @board[pos].color == @board[start_arr].color )
 						candidates << pos
 						move_up_left = false
 					end
@@ -596,9 +588,9 @@ class Board
 				move_down_left = false
 			else	
 				if !(@board[pos] == "*")
-					if @board[pos].type.color == @board[start_arr].type.color
+					if @board[pos].color == @board[start_arr].color
 						move_down_left = false
-					elsif !( @board[pos].type.color == @board[start_arr].type.color )
+					elsif !( @board[pos].color == @board[start_arr].color )
 						candidates << pos
 						move_down_left = false
 					end
@@ -615,7 +607,7 @@ class Board
 		# If piece not empty
 		if !(@board[finish_arr] == "*")
 			# If pieces not same color
-			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
+			if !(@board[finish_arr].color == @board[start_arr].color)
 				if occupied(finish_arr)
 					true
 				end
@@ -625,27 +617,22 @@ class Board
 		end
 	end				
 
-	def bishop_moves(start_arr, finish_arr)
-		color = @color.pop
+	def bishop_moves(start_arr, finish_arr, player)
 		if possible_bishop_moves(start_arr).include? finish_arr
+			color = @color.pop
 			# Checks if bishop overtakes another pieces
 			if occupied(finish_arr)
-				if !( @board[finish_arr].type.color == @board[start_arr].type.color )
-				puts "Bishop at #{start_arr} moves to #{finish_arr}."
-				puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"
+				if !( @board[finish_arr].color == @board[start_arr].color )
+				overtaken(@board[start_arr].type, start_arr, finish_arr)
 				end
 			# If not, then simply moves piece
 			else
-				puts "Bishop at #{start_arr} moves to #{finish_arr}."
-				@board[finish_arr] = @board[start_arr]
-				@board[start_arr] = "*"		
-			end		
+				move_piece(@board[start_arr].type, start_arr, finish_arr)	
+			end			
 		end
 		puts "---------------"
 		show_board
-		puts "Switching sides... Player #{@player.pop}'s turn."
+		puts "Switching sides... #{player}'s turn."
 		rotate_board
 		puts "---------------"
 	end
@@ -667,7 +654,7 @@ class Board
 		children = candidates.select { |pos| pos[0] >= 0 && pos[1] >= 0 && pos[0] <= 7 && pos[1] <= 7}
 		children.delete_if do |child|
 			if !(@board[child] == "*")
-				if @board[child].type.color == @board[start_arr].type.color
+				if @board[child].color == @board[start_arr].color
 					true
 				end
 			end
@@ -685,7 +672,7 @@ class Board
 		# If piece not empty
 		if !(@board[finish_arr] == "*")
 			# If pieces not same color
-			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
+			if !(@board[finish_arr].color == @board[start_arr].color)
 				if occupied(finish_arr)
 					can_do = true
 				end
@@ -694,23 +681,22 @@ class Board
 		can_do
 	end	
 
-	def knight_moves(start_arr, finish_arr)
-		color = @color.pop
+	def knight_moves(start_arr, finish_arr, player)
 		# Checks if knight overtakes another pieces
 		if overtake_knight(start_arr, finish_arr)
-			puts "Knight at #{start_arr} moves to #{finish_arr}."
-			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
+			color = @color.pop
+			overtaken(@board[start_arr].type, start_arr, finish_arr)
 		# Checks if knight can legally perform the instructed move.
 		elsif legal_knight(start_arr, finish_arr)
-			puts "Knight at #{start_arr} moves to #{finish_arr}."
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
+			color = @color.pop
+			move_piece(@board[start_arr].type, start_arr, finish_arr)
+		else
+			puts "Invalid move. Try again!"
+			play(player)	
 		end
 		puts "---------------"
 		show_board
-		puts "Switching sides... Player #{@player.pop}'s turn."
+		puts "Switching sides... #{player}'s turn."
 		rotate_board
 		puts "---------------"
 	end
@@ -736,7 +722,7 @@ class Board
 		if !(@board[finish_arr] == "*")
 			@board[finish_arr]
 			# If pieces not same color
-			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
+			if !(@board[finish_arr].color == @board[start_arr].color)
 				if occupied(finish_arr)
 					can_do = true
 				end
@@ -745,23 +731,22 @@ class Board
 		can_do
 	end	
 
-	def queen_moves(start_arr, finish_arr)
-		color = @color.pop
+	def queen_moves(start_arr, finish_arr, player)
 		# Checks if queen overtakes another pieces
 		if overtake_queen(start_arr, finish_arr) && legal_queen(start_arr, finish_arr)
-			puts "Queen at #{start_arr} moves to #{finish_arr}."
-			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
+			color = @color.pop
+			overtaken(@board[start_arr].type, start_arr, finish_arr)
 		# Checks if queen can legally perform the instructed move.
 		elsif legal_queen(start_arr, finish_arr)
-			puts "Queen at #{start_arr} moves to #{finish_arr}."
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
+			color = @color.pop
+			move_piece(@board[start_arr].type, start_arr, finish_arr)
+		else
+			puts "Invalid move. Try again!"
+			play(player)	
 		end
 		puts "---------------"
 		show_board
-		puts "Switching sides... Player #{@player.pop}'s turn."
+		puts "Switching sides... #{player}'s turn."
 		rotate_board
 		puts "---------------"
 	end	
@@ -785,7 +770,7 @@ class Board
 		children.delete_if do |child|
 			if !(@board[child] == "*")
 				# If pieces not same color
-				if @board[child].type.color == @board[start_arr].type.color
+				if @board[child].color == @board[start_arr].color
 					if occupied(child)
 						can_do = true
 					end
@@ -805,7 +790,7 @@ class Board
 		# If piece not empty
 		if !(@board[finish_arr] == "*")
 			# If pieces not same color
-			if !(@board[finish_arr].type.color == @board[start_arr].type.color)
+			if !(@board[finish_arr].color == @board[start_arr].color)
 				if occupied(finish_arr)
 					can_do = true
 				end
@@ -814,23 +799,23 @@ class Board
 		can_do
 	end	
 
-	def king_moves(start_arr, finish_arr)
+	def king_moves(start_arr, finish_arr, player)
 		color = @color.pop
 		# Checks if king overtakes another pieces
 		if overtake_king(start_arr, finish_arr) && legal_king(start_arr, finish_arr)
-			puts "King at #{start_arr} moves to #{finish_arr}."
-			puts "You overtook the opponent's #{@board[finish_arr].type.class}!"
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
+			color = @color.pop
+			overtaken(@board[start_arr].type, start_arr, finish_arr)
 		# Checks if king can legally perform the instructed move.
 		elsif legal_king(start_arr, finish_arr) && !occupied(finish_arr)
-			puts "King at #{start_arr} moves to #{finish_arr}."
-			@board[finish_arr] = @board[start_arr]
-			@board[start_arr] = "*"
+			color = @color.pop
+			move_piece(@board[start_arr].type, start_arr, finish_arr)
+		else
+			puts "Invalid move. Try again!"
+			play(player)		
 		end
 		puts "---------------"
 		show_board
-		puts "Switching sides... Player #{@player.pop}'s turn."
+		puts "Switching sides... #{player}'s turn."
 		rotate_board
 		puts "---------------"
 	end	
@@ -838,86 +823,14 @@ class Board
 end
 
 class Piece
-	attr_reader :type
+	attr_reader :type, :color
 
 	def initialize(type, color)
-		case type
-		when "pawn"
-			@type = Pawn.new(color)
-		when "rook"
-			@type = Rook.new(color)
-		when "knight"
-			@type = Knight.new(color)
-		when "bishop"
-			@type = Bishop.new(color)
-		when "queen"
-			@type = Queen.new(color)
-		when "king"
-			@type = King.new(color)
-		else
-			@type = "*"
-		end
-	end
-
-	def type
-		@type
-	end
-
-end
-
-class Pawn
-	attr_reader :color
-
-	def initialize(color)
+		@type = type
 		@color = color
 	end
-
 end
 
-class Rook
-	attr_reader :color
-
-	def initialize(color)
-		@color = color
-	end
-
-end
-
-class Knight	
-	attr_reader :color
-
-	def initialize(color)
-		@color = color
-	end
-
-end
-
-class Bishop
-	attr_reader :color
-
-	def initialize(color)
-		@color = color
-	end
-
-end
-
-class Queen
-	attr_reader :color
-
-	def initialize(color)
-		@color = color
-	end
-
-end
-
-class King
-	attr_reader :color
-
-	def initialize(color)
-		@color = color
-	end
-
-end
 
 victory = false
 
@@ -927,10 +840,21 @@ puts "Enter name of player 2:"
 player2 = gets.chomp.to_s
 
 game_play = true
-player = [player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2,player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2]
+# 50 items in this list. Used to apply 50 moves rule (draw after 50 moves).
+player = [player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2, player1, player2]
 
-game = Game.new(player1, player2)
+game = Game.new()
+
+puts "----------------------------------------------------------------"
+puts "The pieces have positions [y,x] where bottom-left piece is [0,0]"
+puts "and the top right piece has position [7,7]."
+puts "e.g. The bottom left pawn is at position [1,0]."
+puts "----------------------------------------------------------------"
+
 while game_play
+	if player.empty? 
+		puts "50 moves have passed. The game ended in a draw. Better luck next time!"
+	end
 	game.gameboard.play(player.shift)
 end
 puts "Game over. Great game!"
