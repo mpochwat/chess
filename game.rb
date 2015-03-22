@@ -58,9 +58,9 @@ class Board
 		else
 			king_moves(start_arr, finish_arr, player)			
 		end		
+		# Determines if there is "check" or "checkmate"? If checkmate, game over.
 		check?
 		checkmate?
-		# Add serialize for the board
 	end	
 
 	# Displays the current board
@@ -317,11 +317,20 @@ class Board
 		overtaken(@board[start_arr].type, start_arr, finish_arr)
 	end	
 
-	# Moves piece on the board
+	# Moves piece on the board. Does not overtake piece.
 	def move_piece(piece, start_arr, finish_arr)
 		puts "#{piece} at #{start_arr} moves to #{finish_arr}."
 		@board[finish_arr] = @board[start_arr]
 		@board[start_arr] = "*"		
+	end
+
+	# Rotates the board for the next player's turn
+	def switch_sides(player)
+		puts "---------------"
+		show_board
+		puts "Switching sides... #{player}'s turn."
+		rotate_board
+		puts "---------------"
 	end
 
 # This section contains code related to the pawn's moves.
@@ -381,11 +390,7 @@ class Board
 			puts "Invalid move. Try again!"
 			play(player)
 		end
-		puts "---------------"
-		show_board
-		puts "Switching sides... #{player}'s turn."
-		rotate_board
-		puts "---------------"
+		switch_sides(player)
 	end
 
 # This section contains code related to the rook's moves.
@@ -500,11 +505,7 @@ class Board
 			puts "Invalid move. Try again!"
 			play(player)	
 		end
-		puts "---------------"
-		show_board
-		puts "Switching sides... #{player}'s turn."
-		rotate_board
-		puts "---------------"
+		switch_sides(player)
 	end
 
 # This section contains code related to the bishops's moves.
@@ -630,11 +631,7 @@ class Board
 				move_piece(@board[start_arr].type, start_arr, finish_arr)	
 			end			
 		end
-		puts "---------------"
-		show_board
-		puts "Switching sides... #{player}'s turn."
-		rotate_board
-		puts "---------------"
+		switch_sides(player)
 	end
 
 # This section contains code related to the knight's moves.
@@ -694,11 +691,7 @@ class Board
 			puts "Invalid move. Try again!"
 			play(player)	
 		end
-		puts "---------------"
-		show_board
-		puts "Switching sides... #{player}'s turn."
-		rotate_board
-		puts "---------------"
+		switch_sides(player)
 	end
 
 
@@ -744,11 +737,7 @@ class Board
 			puts "Invalid move. Try again!"
 			play(player)	
 		end
-		puts "---------------"
-		show_board
-		puts "Switching sides... #{player}'s turn."
-		rotate_board
-		puts "---------------"
+		switch_sides(player)
 	end	
 
 
@@ -813,11 +802,7 @@ class Board
 			puts "Invalid move. Try again!"
 			play(player)		
 		end
-		puts "---------------"
-		show_board
-		puts "Switching sides... #{player}'s turn."
-		rotate_board
-		puts "---------------"
+		switch_sides(player)
 	end	
 
 end
